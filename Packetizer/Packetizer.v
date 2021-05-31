@@ -40,18 +40,7 @@ module Packetizer (
     reg[31:0] IQdata = 0;
     wire[15:0] next_I = {IQdata[29:17], 3'b0};
     wire[15:0] next_Q = {IQdata[13:1], 3'b0};
-    // reg IQrequest = 0;
     reg IQready = 0;
-
-    // always @(posedge clk) begin
-    //     if (rd_en) begin
-    //         IQdata <= rd_data;
-    //         rd_en <= 0;
-    //         IQready <= 1;
-    //     end else if (rd_dr & ~IQready) begin
-    //         rd_en <= 1;
-    //     end
-    // end
 
     // Ethernet
 
@@ -64,9 +53,10 @@ module Packetizer (
     reg[15:0] ip_checksum = 0;
     reg[15:0] udp_checksum = 0;
 
-    wire tx_rdy_int = tx_rdy & IQready;
+    wire tx_rdy_int = tx_rdy & IQready & ~tx_a_full;
 
     assign tx_clk = clk;
+    assign tx_crc_fwd = 0;
 
     always @(posedge clk) begin
         if (rd_en) begin

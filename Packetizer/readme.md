@@ -7,7 +7,6 @@ Convert IQ data from SDR into ethernet packets to transmit
 Upstream component must be able to buffer samples for a bit, packetizer contains no buffer or FIFO
 
 TODO:
-* Use FIFO and CRC signals
 * Calculate checksums
 
 ## Input format
