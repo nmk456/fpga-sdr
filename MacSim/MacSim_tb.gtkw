@@ -1,0 +1,37 @@
+[*]
+[*] GTKWave Analyzer v3.3.100 (w)1999-2019 BSI
+[*] Sun May 30 21:11:34 2021
+[*]
+[dumpfile] "\\wsl$\Ubuntu-20.04\home\nathan\fpga\sdr\MacSim\MacSim_tb.vcd"
+[dumpfile_mtime] "Sun May 30 21:09:19 2021"
+[dumpfile_size] 12578
+[savefile] "\\wsl$\Ubuntu-20.04\home\nathan\fpga\sdr\MacSim\MacSim_tb.gtkw"
+[timestart] 0
+[size] 1920 1017
+[pos] -9 -9
+*-7.000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] MacSim_tb.
+[sst_width] 211
+[signals_width] 142
+[sst_expanded] 1
+[sst_vpaned_height] 301
+@28
+MacSim_tb.clk
+@22
+MacSim_tb.counter[7:0]
+MacSim_tb.data[31:0]
+@28
+MacSim_tb.mac0.started_packet
+MacSim_tb.mac0.ff_tx_eop
+MacSim_tb.mac0.ff_tx_mod[1:0]
+@22
+MacSim_tb.mac0.addr[10:0]
+MacSim_tb.mac0.data_0[7:0]
+MacSim_tb.mac0.data_1[7:0]
+MacSim_tb.mac0.data_2[7:0]
+MacSim_tb.mac0.data_3[7:0]
+@28
+MacSim_tb.mac0.started_packet
+MacSim_tb.mac0.ff_tx_sop
+[pattern_trace] 1
+[pattern_trace] 0

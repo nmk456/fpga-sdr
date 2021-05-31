@@ -1,0 +1,39 @@
+[*]
+[*] GTKWave Analyzer v3.3.100 (w)1999-2019 BSI
+[*] Mon May 24 15:39:00 2021
+[*]
+[dumpfile] "\\wsl$\Ubuntu-20.04\home\nathan\fpga\sdr\LVDS_RX\LVDS_RX_tb.vcd"
+[dumpfile_mtime] "Mon May 24 15:37:33 2021"
+[dumpfile_size] 22122
+[savefile] "\\wsl$\Ubuntu-20.04\home\nathan\fpga\sdr\LVDS_RX\LVDS_RX_tb.gtkw"
+[timestart] 4782
+[size] 1920 1017
+[pos] -9 -9
+*-6.000000 196 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] LVDS_RX_tb.
+[sst_width] 211
+[signals_width] 202
+[sst_expanded] 1
+[sst_vpaned_height] 301
+@28
+LVDS_RX_tb.clk
+[color] 5
+LVDS_RX_tb.data[7:0]
+[color] 5
+LVDS_RX_tb.dr
+LVDS_RX_tb.oe
+LVDS_RX_tb.rst
+[color] 2
+LVDS_RX_tb.tx
+[color] 2
+LVDS_RX_tb.txclk
+@200
+-Internal
+@28
+LVDS_RX_tb.tx0.data_reg[7:0]
+LVDS_RX_tb.tx0.state[1:0]
+LVDS_RX_tb.tx0.tx_counter[1:0]
+@22
+LVDS_RX_tb.tx0.wait_counter[7:0]
+[pattern_trace] 1
+[pattern_trace] 0

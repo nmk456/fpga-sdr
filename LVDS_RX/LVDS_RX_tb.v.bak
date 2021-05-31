@@ -1,0 +1,45 @@
+`timescale 1ns / 1ns
+
+module LVDS_TX_tb;
+
+    reg clk = 0;
+
+    // Clk generator 50 MHz at 1ns time unit
+    always begin
+        #10 clk = ~clk;
+    end
+
+    reg rst = 0;
+    reg oe = 0;
+    wire dr, txclk, tx;
+    reg[7:0] data = 0;
+
+    LVDS_TX tx0(clk, rst, oe, data, dr, txclk, tx);
+
+    initial begin
+        $dumpfile("LVDS_TX_tb.vcd");
+        $dumpvars(0, LVDS_TX_tb);
+
+        repeat(5) @(posedge clk);
+
+        oe <= 1;
+        rst <= 1;
+
+        while (~dr) begin
+            @(posedge clk);
+        end
+
+        data <= 8'b11110000;
+
+        while (~dr) begin
+            @(posedge clk);
+        end
+
+        data <= 8'b10100101;
+
+        repeat(100) @(posedge clk);
+
+        $finish;
+    end
+
+endmodule

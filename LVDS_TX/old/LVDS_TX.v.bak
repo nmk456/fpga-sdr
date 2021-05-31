@@ -1,0 +1,102 @@
+`timescale 1ns / 1ns
+
+module LVDS_TX(
+    input clk,
+    input reset_n,
+
+    // Data inputs
+    input oe,
+    input[7:0] data_in,
+    output reg data_ready,
+
+    // LVDS outputs
+    output txclk,
+    output tx
+);
+
+    parameter WAIT_LEN = 100;
+
+    localparam STATE_INIT = 0;
+    localparam STATE_WAIT = 1;
+    localparam STATE_DATAIN = 2;
+    localparam STATE_SEND = 3;
+
+    reg[1:0] state = 0;
+
+    reg oe_int;
+    reg[1:0] to_send;
+    reg[9:0] data_reg;
+    reg[1:0] tx_count = 0;
+    reg[7:0] wait_counter = 0;
+
+    assign txclk = oe_int ? clk : 1'b0;
+    assign tx = ~oe_int ? 1'b0 : clk ? to_send[0] : to_send[1];
+
+    always @(posedge clk) begin
+        if (~rst) begin
+            state <= STATE_INIT;
+        end else begin
+            case (state)
+                // Set to initial values
+                STATE_INIT: begin
+                    wait_counter <= 0;
+                    to_send <= 0;
+                    data_reg <= 0;
+                    data_ready <= 0;
+                    oe_int <= 0;
+                end
+                // Send zeros for a while
+                STATE_WAIT: begin
+                    if (wait_counter == WAIT_LEN) begin
+                        state <= STATE_DATAIN;
+                        data_ready <= 1;
+                        to_send <= 2'b10;
+                    end else begin
+                        wait_counter <= wait_counter + 1;
+                    end
+                end
+                // Grab data
+                STATE_DATAIN: begin
+                    if (data_ready) begin
+                        data_read <= 0;
+                        state <= STATE_SEND;
+                    end
+                end
+                // Send data
+                default: 
+            endcase
+        end
+
+        if (oe) begin
+            if (wait_counter < 253) begin
+                wait_counter <= wait_counter + 1;
+                data_ready <= 0;
+            end else if (wait_counter == 253) begin
+                wait_counter <= wait_counter + 1;
+                data_ready <= 1;
+            end else if (wait_counter == 254) begin
+                wait_counter <= wait_counter + 1;
+                data_ready <= 0;
+                data_reg <= {2'b10, data_in};
+            end else begin
+                oe_int <= 1'b1;
+                to_send <= data_reg[9:8];
+                tx_count <= tx_count + 1;
+                if (tx_count == 2'b11) begin
+                    data_reg <= {2'b10, data_in};
+                    data_ready <= 1'b0;
+                end else if (tx_count == 2'b10) begin
+                    data_ready <= 1'b1;
+                end else begin
+                    data_reg[9:2] <= data_reg[7:0];
+                    data_ready <= 1'b0;
+                end
+            end
+        end else begin
+            oe_int <= 1'b0;
+            wait_counter <= 0;
+            data_ready <= 0;
+        end
+    end
+
+endmodule
