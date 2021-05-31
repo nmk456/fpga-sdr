@@ -1,6 +1,8 @@
-# LVDS Receiver
+# Deserializer
 
-* Mainly for testing, may be used for SDR later
+Status: WIP
+
+Deserializes data from SDR
 
 ## Payload Format
 
@@ -36,7 +38,7 @@ AE: 32
 
 ## Ports
 
-Clock can be at any frequency greater than data rate/deserialization factor
+Clock frequency must be greater than data rate/deserialization factor
 
 * input clk
 * input reset_n

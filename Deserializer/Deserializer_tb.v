@@ -1,6 +1,6 @@
 `timescale 1ns / 1ns
 
-module LVDS_TX_tb;
+module Deserializer_tb;
 
     reg clk = 0;
 
@@ -14,11 +14,11 @@ module LVDS_TX_tb;
     wire dr, txclk, tx;
     reg[7:0] data = 0;
 
-    LVDS_TX #(16) tx0(clk, rst, oe, data, dr, txclk, tx);
+    Deserializer #(16) tx0(clk, rst, oe, data, dr, txclk, tx);
 
     initial begin
-        $dumpfile("LVDS_TX_tb.vcd");
-        $dumpvars(0, LVDS_TX_tb);
+        $dumpfile("Deserializer_tb.vcd");
+        $dumpvars(0, Deserializer_tb);
 
         repeat(5) @(posedge clk);
 

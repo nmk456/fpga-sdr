@@ -1,5 +1,7 @@
 # Ethernet Notes
 
+Misc notes on Ethernet, specifically the packet structure needed to communicate with GNU Radio
+
 ## Intel Ethernet IP
 
 * On 32 bit data bus, highest byte is transmitted first

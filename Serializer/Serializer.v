@@ -1,6 +1,6 @@
 `timescale 1ns / 1ns
 
-module LVDS_TX(
+module Serializer(
     input clk,
     input reset_n,
 

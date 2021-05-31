@@ -1,6 +1,8 @@
 # LVDS Transmitter
 
-* Mainly for testing, may be used for SDR later
+Status: Functional
+
+Serializes data to be send to SDR
 
 ## Payload Format
 

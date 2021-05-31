@@ -1,5 +1,7 @@
 # Test Data
 
+Processes some test data taken from GNU Radio for analysis and use in Verilog simulations
+
 Sample rate = 1000 Hz
 Test duration = 15 seconds/15000 samples
 

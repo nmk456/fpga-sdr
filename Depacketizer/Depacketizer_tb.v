@@ -1,6 +1,6 @@
 `timescale 1ns / 1ns
 
-module DataController_tb;
+module Depacketizer_tb;
 
     reg clk = 0;
 
@@ -12,8 +12,8 @@ module DataController_tb;
 
 
     initial begin
-        $dumpfile("DataController_tb.vcd");
-        $dumpvars(0, DataController_tb);
+        $dumpfile("Depacketizer_tb.vcd");
+        $dumpvars(0, Depacketizer_tb);
 
         repeat(5) @(posedge clk);
 

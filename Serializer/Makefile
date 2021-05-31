@@ -1,6 +1,6 @@
 CC = iverilog
 FLAGS = -Wall -Winfloop
-NAME = LVDS_TX
+NAME = Serializer
 # DEPS = ~/fpga/cells_sim-ice40.v ../PWM/PWM.v
 
 sim: $(DEPS) $(NAME).v $(NAME)_tb.v
