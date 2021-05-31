@@ -1,6 +1,9 @@
 `timescale 1ns / 1ns
 
 module DataController (
+    input clk,
+    input rst,
+
     input eth_col,
     input eth_crs,
     output eth_mdc,
@@ -15,6 +18,16 @@ module DataController (
     output eth_txen,
     output[3:0] eth_txd
 );
+
+    //                      47:40  39:32  31:24  23:16  15:8   7:0
+    parameter source_mac = {8'h02, 8'h12, 8'h34, 8'h56, 8'h67, 8'h90};
+    parameter dest_mac = {8'h0, 8'h0, 8'h0, 8'h0, 8'h0, 8'h0}; // Change this
+
+    parameter source_ip = {8'd192, 8'd168, 8'd50, 8'd50};
+    parameter dest_ip = {8'd0, 8'd0, 8'd0, 8'd0}; // Change this
+
+    parameter source_port = 16'd32179;
+    parameter dest_port = 16'd32179;
 
     // Serializer
 
@@ -31,16 +44,22 @@ module DataController (
     assign eth_pcf = 0;
     assign eth_rstn = 1;
 
+    reg[7:0] mac_reg_addr;
+    reg[31:0] mac_reg_din;
+    wire[31:0] mac_reg_dout;
+    reg mac_reg_rd, mac_reg_wr;
+    wire mac_reg_busy;
+
     ethernet_ip eth0 (
         // Control port
-        .clk(),             // Clock
-        .reset(),           // Reset
-        .reg_addr(),        // Register address
-        .reg_data_out(),    // Data out
-        .reg_rd(),          // Read request
-        .reg_data_in(),     // Data in
-        .reg_wr(),          // Write request
-        .reg_busy(),        // Wait request
+        .clk(clk),                      // Clock
+        .reset(rst),                    // Reset
+        .reg_addr(mac_reg_addr),        // Register address
+        .reg_data_out(mac_reg_dout),    // Data out
+        .reg_rd(mac_reg_rd),            // Read request
+        .reg_data_in(mac_reg_din),      // Data in
+        .reg_wr(mac_reg_wr),            // Write request
+        .reg_busy(mac_reg_busy),        // Wait request
 
         // MAC status
         .set_10(1'b0),   // Set 10 Mbps mode
@@ -52,7 +71,7 @@ module DataController (
         .tx_clk(eth_txclk),     // Transmit clock
         .m_tx_d(eth_txd),       // Transmit data
         .m_tx_en(eth_txen),     // Transmit valid
-        .m_tx_err(),            // Transmit error
+        .m_tx_err(),            // Transmit error - NC
         .rx_clk(eth_rxclk),     // Receive clock
         .m_rx_d(eth_rxd),       // Receive data
         .m_rx_en(eth_rxdv),     // Receive valid
@@ -98,5 +117,115 @@ module DataController (
         .ff_rx_a_full(),     // Receive almost full
         .ff_rx_a_empty()    // Receive almost empty
     );
+
+    // MAC config
+    
+    reg[7:0] step = 0;
+
+    localparam CC_REG1 = 32'h00802220;
+    localparam CC_REG2 = 32'h00800220;
+    localparam CC_REG3 = 32'h00800223;
+
+    always @(posedge clk) begin
+        if (~mac_reg_busy) begin
+            case (step)
+                // Initial values
+                8'd0: begin
+                    mac_reg_addr <= 0;
+                    mac_reg_din <= 0;
+                    mac_reg_rd <= 0;
+                    mac_reg_wr <= 0;
+
+                    step <= step + 1;
+                end
+
+                // MDIO address
+                8'd1: begin
+                    mac_reg_addr <= 8'h0f;
+                    mac_reg_wr <= 1;
+                    mac_reg_din <= {27'b0, 5'h01};
+
+                    step <= step + 1;
+                end
+
+                // Disable TX/RX
+                8'd2: begin
+                    mac_reg_addr <= 8'h02;
+                    mac_reg_wr <= 1;
+                    mac_reg_din <= CC_REG1;
+
+                    step <= step + 1;
+                end
+                8'd3: begin
+                    mac_reg_wr <= 0;
+                    mac_reg_rd <= 1;
+
+                    if (mac_reg_dout == CC_REG1) begin
+                        step <= step + 1;
+                        mac_reg_rd <= 0;
+                    end
+                end
+
+                // MAC address
+                8'd4: begin
+                    mac_reg_addr <= 8'h03;
+                    mac_reg_wr <= 1;
+                    mac_reg_din <= {source_mac[23:16], source_mac[31:24], source_mac[39:32], source_mac[47:40]};
+
+                    step <= step + 1;
+                end
+                8'd5: begin
+                    mac_reg_addr <= 8'h04;
+                    mac_reg_din <= {16'b0, source_mac[7:0], source_mac[15:8]};
+
+                    step <= step + 1;
+                end
+
+                // Reset
+                8'd6: begin
+                    mac_reg_addr <= 8'h02;
+                    mac_reg_wr <= 1;
+                    mac_reg_din <= CC_REG1;
+
+                    step <= step + 1;
+                end
+                8'd7: begin
+                    mac_reg_wr <= 0;
+                    mac_reg_rd <= 1;
+
+                    if (mac_reg_dout == CC_REG2) begin
+                        step <= step + 1;
+                        mac_reg_rd <= 0;
+                    end
+                end
+
+                // Enable TX/RX
+                8'd8: begin
+                    mac_reg_wr <= 1;
+                    mac_reg_addr <= 2'h02;
+                    mac_reg_din <= CC_REG3;
+
+                    step <= step + 1;
+                end
+
+                8'd9: begin
+                    mac_reg_wr <= 0;
+                    mac_reg_rd <= 1;
+
+                    if (mac_reg_dout == CC_REG3) begin
+                        step <= steo + 1;
+                        mac_reg_rd <= 0;
+                    end
+                end
+
+                default: begin
+                    mac_reg_addr <= 0;
+                    mac_reg_din <= 0;
+                    mac_reg_rd <= 0;
+                    mac_reg_wr <= 0;
+                end
+            endcase
+        end
+    end
 
 endmodule
