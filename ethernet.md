@@ -6,6 +6,37 @@ Misc notes on Ethernet, specifically the packet structure needed to communicate 
 
 * On 32 bit data bus, highest byte is transmitted first
 
+### Register Initialization
+
+**Register initialization values taken from user guide**
+
+Set MDIO address - Writing to 0x80-0x9f will be same as writing to MDIO registers on PHY
+
+Disable TX and RX in command config register
+
+Read command config to ensure TX and RX are disabled
+
+FIFO Config
+* Tx_section_empty = Max FIFO size - 16
+* Tx_almost_full = 3
+* Tx_almost_empty = 8
+* Rx_section_empty = Max FIFO size - 16
+* Rx_almost_full = 8
+* Rx_almost_empty = 8
+* Tx_section_full = 0 - Store and forward mode
+* Rx_section_full = 0 - Store and forward mode
+
+MAC address config
+
+MAC functions
+* Frm_length = 1518
+* Tx_ipg_length = 12
+* Pause_quanta = 0xFFFF
+* Misc Command_config options
+* Software reset
+
+Enable TX/RX
+
 ## Overview
 
 Ethernet Frame
