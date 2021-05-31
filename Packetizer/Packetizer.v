@@ -32,8 +32,8 @@ module Packetizer (
     parameter source_ip = {8'd192, 8'd168, 8'd50, 8'd50};
     parameter dest_ip = {8'd0, 8'd0, 8'd0, 8'd0}; // Change this
 
-    parameter source_port = 32179;
-    parameter dest_port = 32179;
+    parameter source_port = 16'd32179;
+    parameter dest_port = 16'd32179;
 
     // IQ Data
 
