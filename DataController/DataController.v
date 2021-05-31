@@ -35,6 +35,41 @@ module DataController (
 
     // Packetizer
 
+    wire tx_clk, tx_eop, tx_err, tx_rdy, tx_sop, tx_wren;
+    wire[31:0] tx_data;
+    wire[1:0] tx_mod;
+
+    wire tx_crc_fwd, tx_a_full, tx_a_empty;
+
+    Packetizer #(
+        .source_mac(source_mac),
+        .dest_mac(dest_mac),
+        .source_ip(source_ip),
+        .dest_ip(dest_ip),
+        .source_port(source_port),
+        .dest_port(dest_port)
+    ) packetizer0 (
+        .clk(clk),
+        .reset_n(~rst),
+
+        .rd_en(),
+        .rd_data({2'b10, 14'b01001001_001000, 2'b01, 14'b01010001_001000}),
+        .rd_dr(1'b1),
+
+        .tx_clk(tx_clk),
+        .tx_data(tx_data),
+        .tx_eop(tx_eop),
+        .tx_err(tx_err),
+        .tx_mod(tx_mod),
+        .tx_rdy(tx_rdy),
+        .tx_sop(tx_sop),
+        .tx_wren(tx_wren),
+
+        .tx_crc_fwd(tx_crc_fwd),
+        .tx_a_full(tx_a_full),
+        .tx_a_empty(tx_a_empty)
+    );
+
     // Depacketizer
 
     // Ethernet MAC
@@ -80,14 +115,14 @@ module DataController (
         .m_rx_col(eth_col),     // Collision detection
 
         // Transmit stream interface
-        .ff_tx_clk(),    // Clock
-        .ff_tx_data(),   // Data
-        .ff_tx_eop(),    // End of packet
-        .ff_tx_err(),    // Error
-        .ff_tx_mod(),    // Modulo
-        .ff_tx_rdy(),    // Data ready
-        .ff_tx_sop(),    // Start of packet
-        .ff_tx_wren(),   // Write enable
+        .ff_tx_clk(tx_clk),    // Clock
+        .ff_tx_data(tx_data),   // Data
+        .ff_tx_eop(tx_eop),    // End of packet
+        .ff_tx_err(tx_err),    // Error
+        .ff_tx_mod(tx_mod),    // Modulo
+        .ff_tx_rdy(tx_rdy),    // Data ready
+        .ff_tx_sop(tx_sop),    // Start of packet
+        .ff_tx_wren(tx_wren),   // Write enable
 
         // Receive stream interface
         .ff_rx_clk(),    // Clock
@@ -106,11 +141,11 @@ module DataController (
         .mdio_oen(mdio_oen), // Output enable
 
         // Misc signals
-        .ff_tx_crc_fwd(),    // CRC insertion (set to 0 when ff_tx_eop is 1 to automatically insert CRC)
+        .ff_tx_crc_fwd(tx_crc_fwd),    // CRC insertion (set to 0 when ff_tx_eop is 1 to automatically insert CRC)
         .ff_tx_septy(),      // Section empty
         .tx_ff_uflow(),      // Transmit underflow
-        .ff_tx_a_full(),     // Transmit almost full
-        .ff_tx_a_empty(),    // Transmit almost empty
+        .ff_tx_a_full(tx_a_full),     // Transmit almost full
+        .ff_tx_a_empty(tx_a_empty),    // Transmit almost empty
         .rx_err_stat(),      // ?
         .rx_frm_type(),      // Frame type
         .ff_rx_dsav(),       // Frame available but not yet complete
