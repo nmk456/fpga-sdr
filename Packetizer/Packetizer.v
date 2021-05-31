@@ -43,15 +43,15 @@ module Packetizer (
     // reg IQrequest = 0;
     reg IQready = 0;
 
-    always @(posedge clk) begin
-        if (rd_en) begin
-            IQdata <= rd_data;
-            rd_en <= 0;
-            IQready <= 1;
-        end else if (rd_dr & ~IQready) begin
-            rd_en <= 1;
-        end
-    end
+    // always @(posedge clk) begin
+    //     if (rd_en) begin
+    //         IQdata <= rd_data;
+    //         rd_en <= 0;
+    //         IQready <= 1;
+    //     end else if (rd_dr & ~IQready) begin
+    //         rd_en <= 1;
+    //     end
+    // end
 
     // Ethernet
 
@@ -69,6 +69,14 @@ module Packetizer (
     assign tx_clk = clk;
 
     always @(posedge clk) begin
+        if (rd_en) begin
+            IQdata <= rd_data;
+            rd_en <= 0;
+            IQready <= 1;
+        end else if (rd_dr & ~IQready) begin
+            rd_en <= 1;
+        end
+
         if (~reset_n) begin
             tx_mod <= 2'b00;
             tx_word <= 0;
