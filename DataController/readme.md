@@ -1,5 +1,5 @@
 # Data Controller
 
-Status: Not start
+Status: WIP
 
 High level modules that connects other components together and to Ethernet MAC
