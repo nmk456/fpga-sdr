@@ -21,7 +21,7 @@ module DataController (
 
     //                      47:40  39:32  31:24  23:16  15:8   7:0
     parameter source_mac = {8'h02, 8'h12, 8'h34, 8'h56, 8'h67, 8'h90};
-    parameter dest_mac = {8'h0, 8'h0, 8'h0, 8'h0, 8'h0, 8'h0}; // Change this
+    parameter dest_mac = {8'h00, 8'h10, 8'h18, 8'h8b, 8'h15, 8'h92}; // Change this
 
     parameter source_ip = {8'd10, 8'd0, 8'd0, 8'd2};
     parameter dest_ip = {8'd10, 8'd0, 8'd0, 8'd1};
