@@ -23,8 +23,8 @@ module DataController (
     parameter source_mac = {8'h02, 8'h12, 8'h34, 8'h56, 8'h67, 8'h90};
     parameter dest_mac = {8'h0, 8'h0, 8'h0, 8'h0, 8'h0, 8'h0}; // Change this
 
-    parameter source_ip = {8'd192, 8'd168, 8'd50, 8'd50};
-    parameter dest_ip = {8'd0, 8'd0, 8'd0, 8'd0}; // Change this
+    parameter source_ip = {8'd10, 8'd0, 8'd0, 8'd2};
+    parameter dest_ip = {8'd10, 8'd0, 8'd0, 8'd1};
 
     parameter source_port = 16'd32179;
     parameter dest_port = 16'd32179;
