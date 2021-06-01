@@ -248,7 +248,7 @@ module DataController (
                     mac_reg_rd <= 1;
 
                     if (mac_reg_dout == CC_REG3) begin
-                        step <= steo + 1;
+                        step <= step + 1;
                         mac_reg_rd <= 0;
                     end
                 end
