@@ -53,6 +53,25 @@ module ethernet_ip (
     output wire        ff_rx_a_empty  //                              .ff_rx_a_empty
 );
 
+    // Control register interface
 
+    assign reg_data_out = reg_data_in;
+    assign reg_busy = 0;
+
+    // TX interface
+
+    assign ff_tx_a_full = 0;
+    assign ff_tx_a_empty = 0;
+
+    MacSim mac0(
+        .ff_tx_clk(ff_tx_clk),
+        .ff_tx_data(ff_tx_data),
+        .ff_tx_eop(ff_tx_eop),
+        .ff_tx_err(ff_tx_err),
+        .ff_tx_mod(ff_tx_mod),
+        .ff_tx_rdy(ff_tx_rdy),
+        .ff_tx_sop(ff_tx_sop),
+        .ff_tx_wren(ff_tx_wren)
+    );
 
 endmodule

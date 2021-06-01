@@ -237,7 +237,7 @@ module DataController (
                 // Enable TX/RX
                 8'd8: begin
                     mac_reg_wr <= 1;
-                    mac_reg_addr <= 2'h02;
+                    mac_reg_addr <= 8'h02;
                     mac_reg_din <= CC_REG3;
 
                     step <= step + 1;
