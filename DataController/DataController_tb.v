@@ -6,16 +6,19 @@ module DataController_tb;
 
     // Clk generator 50 MHz at 1ns time unit
     always begin
-        #10 clk = ~clk;
+        #1 clk = ~clk;
     end
 
-
+    DataController ctl0 (
+        .clk(clk),
+        .rst(1'b0)
+    );
 
     initial begin
         $dumpfile("DataController_tb.vcd");
         $dumpvars(0, DataController_tb);
 
-        repeat(5) @(posedge clk);
+        repeat(1000) @(posedge clk);
 
         $finish;
     end

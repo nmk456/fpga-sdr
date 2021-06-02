@@ -1,7 +1,7 @@
 CC = iverilog
 FLAGS = -Wall -Winfloop
 NAME = DataController
-# DEPS = ~/fpga/cells_sim-ice40.v ../PWM/PWM.v
+DEPS = ../Packetizer/Packetizer.v ethernet_ip.v ../MacSim/MacSim.v
 
 sim: $(DEPS) $(NAME).v $(NAME)_tb.v
 	$(CC) $(FLAGS) -o $(NAME) $(DEPS) $(NAME).v $(NAME)_tb.v
