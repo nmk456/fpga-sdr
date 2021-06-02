@@ -162,7 +162,9 @@ module DataController (
     localparam CC_REG3 = 32'h00800223;
 
     always @(posedge clk) begin
-        if (~mac_reg_busy) begin
+        if (rst) begin
+            step <= 0;
+        end else if (~mac_reg_busy) begin
             case (step)
                 // Initial values
                 8'd0: begin
