@@ -1,0 +1,31 @@
+[*]
+[*] GTKWave Analyzer v3.3.100 (w)1999-2019 BSI
+[*] Sun Jun 06 15:48:42 2021
+[*]
+[dumpfile] "\\wsl$\Ubuntu-20.04\home\nathan\fpga\sdr\tb\Serializer\dump.fst"
+[dumpfile_mtime] "Sun Jun 06 15:48:30 2021"
+[dumpfile_size] 778
+[savefile] "\\wsl$\Ubuntu-20.04\home\nathan\fpga\sdr\tb\Serializer\Serializer.gtkw"
+[timestart] 0
+[size] 1920 1017
+[pos] -243 -243
+*-16.000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[sst_width] 211
+[signals_width] 142
+[sst_expanded] 1
+[sst_vpaned_height] 301
+@28
+clk
+data_ready
+@22
+idata_in[13:0]
+@28
+oe
+@22
+qdata_in[13:0]
+@28
+reset_n
+tx
+txclk
+[pattern_trace] 1
+[pattern_trace] 0
