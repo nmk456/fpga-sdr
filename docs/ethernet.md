@@ -1,6 +1,28 @@
 # Ethernet Notes
 
-Misc notes on Ethernet, specifically the packet structure needed to communicate with GNU Radio
+Random notes on Ethernet and how it's used in this project
+
+## Deca Strap Options
+
+* PHY address - 0x01
+    * COL, RXD[3:0] set to internal pullup/down - 0b00001
+* Auto-negotiation - 10Base-T half/full duplex, 100Base-TX half/full duplex
+    * LED_LINK (AN_EN) - external pullup - 1
+    * LED_SPEED (AN1) - external pullup - 1
+    * LED_ACT (AN0) - external pullup - 1
+* Clock output - clock output disabled
+    * CLK_OUT_EN - external pulldown - 0
+* Fiber enable - disabled
+    * RX_ER (FX_EN_Z) - internal pullup - 1
+* LED configuration - default
+* MII mode select - default, MII
+
+## MII Interface
+
+* Data on TXD[3:0] is transmitted when TXEN is high
+* Least significant nibble is transmitted first for a given byte
+    * Ex: 0x1c transmitted as 0xc first and 0x1 second
+* Need to transmit preamble and SOF signals first
 
 ## Intel Ethernet IP
 
@@ -119,3 +141,15 @@ UDP Frame
 * 0x05ea - CRC MSB
 * 0x05eb - CRC x2
 * 0x05ed - CRC LSB
+
+# Sources
+
+https://www.intel.com/content/dam/www/programmable/us/en/pdfs/literature/ug/ug_ethernet.pdf
+
+http://www.ece.ualberta.ca/~elliott/ee552/studentAppNotes/2001_w/interfacing/ethernet_mii/eth_mii.html
+
+https://en.wikipedia.org/wiki/Ethernet_frame
+
+https://en.wikipedia.org/wiki/IPv4#Packet_structure
+
+https://en.wikipedia.org/wiki/User_Datagram_Protocol#UDP_datagram_structure
