@@ -2,104 +2,107 @@
 
 module Serializer(
     input clk,
-    input reset_n,
+    input rst,
 
     // Data inputs
-    input oe,
     input[13:0] idata_in,
     input[13:0] qdata_in,
-    output reg data_ready,
+    input data_valid,
+    output reg data_ready = 0,
 
     // LVDS outputs
     output txclk,
     output reg tx
 );
 
-    parameter WAIT_LEN = 64;
+    parameter WAIT_LEN = 8'd64;
 
     localparam STATE_INIT = 2'b00;
     localparam STATE_WAIT = 2'b01;
-    localparam STATE_DATAIN = 2'b10;
-    localparam STATE_SEND = 2'b11;
+    localparam STATE_I_DATA = 2'b10;
+    localparam STATE_Q_DATA = 2'b11;
 
-    reg[1:0] state = 0;
+    reg[1:0] state = STATE_INIT;
 
-    reg oe_int = 0;
-    reg[31:0] data_reg = 0;
-    reg[3:0] tx_counter = 0;
+    reg[13:0] idata_reg = 0;
+    reg[13:0] idata_next = 0;
+    reg[13:0] qdata_reg = 0;
+    reg[13:0] qdata_next = 0;
+    wire[13:0] send_data;
+    reg[2:0] tx_counter = 0;
     reg[7:0] wait_counter = 0;
+    // reg have_next = 0;
 
-    assign txclk = oe_int ? clk : 1'b0;
+    assign txclk = clk;
+    assign send_data = (state == STATE_I_DATA) ? idata_reg : qdata_reg;
 
     always @(*) begin
-        if (oe_int) begin
-            if (state == STATE_SEND) begin
-                case (tx_counter)
-                    4'b1111: tx = txclk ? data_reg[31] : data_reg[30];
-                    4'b0000: tx = txclk ? data_reg[29] : data_reg[28];
-                    4'b0001: tx = txclk ? data_reg[27] : data_reg[26];
-                    4'b0010: tx = txclk ? data_reg[25] : data_reg[24];
-                    4'b0011: tx = txclk ? data_reg[23] : data_reg[22];
-                    4'b0100: tx = txclk ? data_reg[21] : data_reg[20];
-                    4'b0101: tx = txclk ? data_reg[19] : data_reg[18];
-                    4'b0110: tx = txclk ? data_reg[17] : data_reg[16];
-                    4'b0111: tx = txclk ? data_reg[15] : data_reg[14];
-                    4'b1000: tx = txclk ? data_reg[13] : data_reg[12];
-                    4'b1001: tx = txclk ? data_reg[11] : data_reg[10];
-                    4'b1010: tx = txclk ? data_reg[9] : data_reg[8];
-                    4'b1011: tx = txclk ? data_reg[7] : data_reg[6];
-                    4'b1100: tx = txclk ? data_reg[5] : data_reg[4];
-                    4'b1101: tx = txclk ? data_reg[3] : data_reg[2];
-                    4'b1110: tx = txclk ? data_reg[1] : data_reg[0];
-                endcase
-
-                if (tx_counter == 4'b1111) begin
-                    data_reg = idata_in;
+        if (state == STATE_I_DATA || state == STATE_Q_DATA) begin
+            case (tx_counter)
+                3'b000: if (state == STATE_I_DATA) begin
+                    tx = txclk ? 1'b1 : 1'b0;
+                end else begin
+                    tx = txclk ? 1'b0 : 1'b1;
                 end
-            end else if (state == STATE_DATAIN) begin
-                tx = clk ? 1'b1 : 1'b0;
-            end else begin
-                tx = 0;
-            end
+                3'b001: tx = txclk ? send_data[13] : send_data[12];
+                3'b010: tx = txclk ? send_data[11] : send_data[10];
+                3'b011: tx = txclk ? send_data[9] : send_data[8];
+                3'b100: tx = txclk ? send_data[7] : send_data[6];
+                3'b101: tx = txclk ? send_data[5] : send_data[4];
+                3'b110: tx = txclk ? send_data[3] : send_data[2];
+                3'b111: tx = txclk ? send_data[1] : send_data[0];
+            endcase
         end else begin
-            tx = 0;
+            tx = 1'b0;
         end
     end
 
     always @(posedge clk) begin
-        if (~reset_n) begin
+        if (rst) begin
             state <= STATE_INIT;
         end else begin
             case (state)
                 STATE_INIT: begin // Set to initial values
                     state <= STATE_WAIT;
                     wait_counter <= 0;
-                    data_ready <= 0;
-                    oe_int <= 0;
+                    data_ready <= 1;
+                    // have_next <= 0;
                 end
                 STATE_WAIT: begin // Send zeros for a while
-                    oe_int <= 1;
                     if (wait_counter == WAIT_LEN) begin
-                        state <= STATE_DATAIN;
-                        data_ready <= 1;
-                        tx_counter <= 4'b1111;
+                        state <= STATE_I_DATA;
+                        data_ready <= 1'b1;
+                        tx_counter <= 3'b0000;
+                        idata_reg <= idata_next;
+                        qdata_reg <= qdata_next;
                     end else begin
                         wait_counter <= wait_counter + 1;
                     end
                 end
-                STATE_DATAIN: begin // Grab data
-                    state <= STATE_SEND;
-                    data_ready <= 0;
-                end
-                STATE_SEND: begin // Send data
+                default: begin // STATE_I_DATA or STATE_Q_DATA
                     tx_counter <= tx_counter + 1;
-
-                    if (tx_counter == 4'b1110) begin
-                        state <= STATE_DATAIN;
-                        data_ready <= 1;
-                    end
                 end
             endcase
+
+            if (data_ready && data_valid) begin
+                idata_next <= idata_in;
+                qdata_next <= qdata_in;
+
+                data_ready <= 1'b0;
+            end
+
+            if (tx_counter == 3'b111) begin
+                if (state == STATE_I_DATA) begin
+                    state <= STATE_Q_DATA;
+                end else if (state == STATE_Q_DATA) begin
+                    state <= STATE_I_DATA;
+
+                    data_ready <= 1'b1;
+
+                    idata_reg <= idata_next;
+                    qdata_reg <= qdata_next;
+                end
+            end
         end
     end
 

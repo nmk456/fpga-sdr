@@ -6,7 +6,7 @@ Individual modules have more detailed readme files, but in summary, this project
 
 | Module | Status | Testbench | Test Results |
 | --- | --- | --- | --- |
-| Serializer | In progress | In progress | N/A |
+| Serializer | Functional | Functional | Passing |
 | Deserializer | In progress | In progress | N/A |
 | Packetizer | In progress | In progress | N/A |
 | Depacketizer | Not started | Not started | N/A |
@@ -17,7 +17,7 @@ Individual modules have more detailed readme files, but in summary, this project
 
 ### Serializer
 
-Sends data over LVDS using packet structure defined in AT86RF215 datasheet page 24.
+Sends data over LVDS using packet structure defined in AT86RF215 datasheet page 24. Data input is captured when both data_valid and data_ready are asserted.
 
 #### Ports
 
@@ -36,9 +36,7 @@ Sends data over LVDS using packet structure defined in AT86RF215 datasheet page 
 
 * STATE_INIT - only active after reset, initializes values to default
 * STATE_WAIT - wait period at transmission start
-* STATE_I_SYNC - First sync word (0b10)
 * STATE_I_DATA - I data
-* STATE_Q_SYNC - Second sync word (0b01)
 * STATE_Q_DATA - Q data
 
 ### Deserializer
