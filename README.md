@@ -19,6 +19,8 @@ Individual modules have more detailed readme files, but in summary, this project
 
 Sends data over LVDS using packet structure defined in AT86RF215 datasheet page 24. Data input is captured when both data_valid and data_ready are asserted.
 
+TODO: Verify reset behavior.
+
 #### Ports
 
 | Name | Direction | Description |
@@ -38,6 +40,10 @@ Sends data over LVDS using packet structure defined in AT86RF215 datasheet page 
 * STATE_WAIT - wait period at transmission start
 * STATE_I_DATA - I data
 * STATE_Q_DATA - Q data
+
+#### Timing Diagram
+
+![Serializer Timing Diagram](./docs/LVDS32TX_Timing.svg)
 
 ### Deserializer
 
