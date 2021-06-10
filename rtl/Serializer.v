@@ -31,7 +31,6 @@ module Serializer(
     wire[13:0] send_data;
     reg[2:0] tx_counter = 0;
     reg[7:0] wait_counter = 0;
-    // reg have_next = 0;
 
     assign txclk = clk;
     assign send_data = (state == STATE_I_DATA) ? idata_reg : qdata_reg;
@@ -65,8 +64,13 @@ module Serializer(
                 STATE_INIT: begin // Set to initial values
                     state <= STATE_WAIT;
                     wait_counter <= 0;
+                    tx_counter <= 0;
                     data_ready <= 1;
-                    // have_next <= 0;
+
+                    idata_reg <= 14'b0;
+                    qdata_reg <= 14'b0;
+                    idata_next <= 14'b0;
+                    qdata_next <= 14'b0;
                 end
                 STATE_WAIT: begin // Send zeros for a while
                     if (wait_counter == WAIT_LEN) begin
