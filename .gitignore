@@ -1,6 +1,5 @@
 *.vcd
 *.fst
-*.gtkw
 **/sim_build
 **/__pycache__
 **/results.xml
