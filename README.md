@@ -17,7 +17,9 @@ Individual modules have more detailed readme files, but in summary, this project
 
 ### Serializer
 
-Sends data over LVDS using packet structure defined in AT86RF215 datasheet page 24. Data input is captured when both data_valid and data_ready are asserted.
+Sends data over LVDS using word structure defined in AT86RF215 datasheet page 24. Data input is captured when both data_valid and data_ready are asserted.
+
+DDR functionality relies on generated Intel IP, so a non-synthesizable equivalent is used for simulation. It might actually be synthesizable in this specific case, but using the generated IP is preferred.
 
 TODO: Verify reset behavior.
 
@@ -47,10 +49,22 @@ TODO: Verify reset behavior.
 
 ### Deserializer
 
+Receives data over LVDS using word structure defined in AT86RF215 datasheet page 24. Contains a 256 word deep FIFO to cross from LVDS clock domain into FPGA clock domain.
+
+DDR functionality relies on generated Intel IP, so a non-synthesizable equivalent is used for simulation.
+
 ### Packetizer
 
 ### Depacketizer
 
 ### SimpleMac
+
+Sends and receives packets over ethernet with Avalon-ST bus. Stores data in a 4096 entry deep FIFO, enough to store 2 packets.
+
+FIFO memory format (10 bits wide): {tx_eop, tx_sop, tx_data[7:0]}
+
+#### CRC32
+
+This module compute the CRC for the frame check sequence at the end of the ethernet frame. The module was automatically generated using [this](http://outputlogic.com/?page_id=321) website. A simple testbench generates some random data and compares the resulting CRC to one generated with a known good library.
 
 ### DataController
