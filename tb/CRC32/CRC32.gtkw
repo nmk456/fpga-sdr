@@ -1,0 +1,37 @@
+[*]
+[*] GTKWave Analyzer v3.3.100 (w)1999-2019 BSI
+[*] Sat Jun 19 17:57:43 2021
+[*]
+[dumpfile] "\\wsl$\Ubuntu-20.04\home\nathan\fpga\sdr\tb\CRC32\dump.fst"
+[dumpfile_mtime] "Sat Jun 19 17:54:46 2021"
+[dumpfile_size] 1814
+[savefile] "\\wsl$\Ubuntu-20.04\home\nathan\fpga\sdr\tb\CRC32\CRC32.gtkw"
+[timestart] 0
+[size] 1920 1017
+[pos] -9 -9
+*-3.937933 0 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] .
+[sst_width] 211
+[signals_width] 212
+[sst_expanded] 1
+[sst_vpaned_height] 301
+@28
+clk
+crc_en
+@22
+data_in[7:0]
+crc_out[31:0]
+@28
+rst
+@200
+-
+@28
+CRC32.lfsr_c[31:0]
+@22
+CRC32.lfsr_c[31:0]
+@28
+CRC32.lfsr_q[31:0]
+@22
+CRC32.lfsr_q[31:0]
+[pattern_trace] 1
+[pattern_trace] 0

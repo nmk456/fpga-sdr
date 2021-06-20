@@ -65,6 +65,6 @@ FIFO memory format (10 bits wide): {tx_eop, tx_sop, tx_data[7:0]}
 
 #### CRC32
 
-This module compute the CRC for the frame check sequence at the end of the ethernet frame. The module was automatically generated using [this](http://outputlogic.com/?page_id=321) website. A simple testbench generates some random data and compares the resulting CRC to one generated with a known good library.
+This module compute the CRC to be inserted at the end of the ethernet frame. The module is based on a parametrizable module from [Alex Forencich](https://github.com/alexforencich/verilog-ethernet). A simple testbench generates some random data and compares the resulting CRC to one generated with a known good library.
 
 ### DataController
