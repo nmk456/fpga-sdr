@@ -6,7 +6,7 @@ module CRC32(
     output [31:0] crc_out
 );
 
-    reg[31:0] crc_q
+    reg[31:0] crc_q = 32'hffffffff;
     reg[31:0] crc_c;
 
     assign crc_out = ~crc_q;

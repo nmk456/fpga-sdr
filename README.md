@@ -19,7 +19,7 @@ Individual modules have more detailed readme files, but in summary, this project
 
 Sends data over LVDS using word structure defined in AT86RF215 datasheet page 24. Data input is captured when both data_valid and data_ready are asserted.
 
-DDR functionality relies on generated Intel IP, so a non-synthesizable equivalent is used for simulation. It might actually be synthesizable in this specific case, but using the generated IP is preferred.
+DDR functionality relies on generated Intel IP, so a non-synthesizable equivalent is used for simulation. It might actually be synthesizable in this specific case, but using the generated IP will almost definitely work better.
 
 TODO: Verify reset behavior.
 

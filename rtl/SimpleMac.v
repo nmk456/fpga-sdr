@@ -3,8 +3,8 @@ module SimpleMac (
 
     // MII interface
     input eth_txclk,
-    output eth_txen,
-    output reg[3:0] eth_txd
+    output reg eth_txen,
+    output reg[3:0] eth_txd,
     input eth_rxclk,
     input eth_rxdv,
     input eth_rxer,
@@ -31,19 +31,22 @@ module SimpleMac (
 
     parameter ALMOST_FULL_THRESHOLD = 64;
     parameter ALMOST_EMPTY_THRESHOLD = 64;
+    parameter WAIT_LEN = 24; // 24 nibbles is 12 bytes or 96 bits, the standard minimum interpacket gap
 
     // 2048 byte deep FIFO
     // FIFO stores 8 data bits, sop, eop, and err signals
-    // single entry = {err, eop, sop, data}, 11 bits wide
+    // single entry = {eop, sop, data}, 11 bits wide
 
-    reg[10:0] fifo_mem[2047:0];
+    reg[9:0] fifo_mem[2047:0];
     reg[10:0] rd_ptr = 0;
     reg[10:0] wr_ptr = 0;
-    reg[10:0] fifo_count = wr_ptr - rd_ptr;
+    wire[10:0] fifo_count = wr_ptr - rd_ptr;
 
+    /* verilator lint_off WIDTH */
     assign tx_a_full = fifo_count > 2048 - ALMOST_FULL_THRESHOLD;
     assign tx_a_empty = fifo_count < ALMOST_EMPTY_THRESHOLD;
-    assign tx_rdy = ~tx_a_full;
+    assign tx_rdy = ~tx_a_full & ~rst_int;
+    /* verilator lint_on WIDTH */
 
     integer i;
     initial begin
@@ -52,65 +55,162 @@ module SimpleMac (
         end
     end
 
-    reg[3:0] packets_ready; // Number of complete packets in FIFO
+    reg[3:0] packets_ready = 0; // Number of complete packets in FIFO
+    reg rst_int = 0;
+    reg rst_ack = 0;
 
     // Write logic
 
     always @(posedge tx_clk) begin
-        if (tx_rdy) begin
-            fifo_mem[wr_ptr] <= {tx_err, tx_eop, tx_sop, tx_data};
+        if (rst) begin
+            if (~rst_int) begin
+                if (rst_ack) begin
+                    rst_int <= 0;
+                end else begin
+                    rst_int <= 0;
+                end
+            end
+            wr_ptr <= 0;
+            packets_ready <= 0;
+        end else if (tx_wren & tx_rdy) begin
+            fifo_mem[wr_ptr] <= {tx_eop, tx_sop, tx_data};
             wr_ptr <= wr_ptr + 1;
+
+            if (tx_eop) begin
+                packets_ready <= packets_ready + 1;
+            end
         end
     end
 
     // Read logic
 
-    wire[7:0] read_data = fifo_mem[rd_ptr][7:0]; // Current data
-    wire read_sop = fifo_mem[rd_ptr][8]; // Current sop value
-    wire read_eop = fifo_mem[rd_ptr][9]; // Current eop value
-    wire[3:0] tx_high = read_data[7:4]; // High nibble
-    wire[3:0] tx_low = read_data[3:0]; // Low nibble
-    reg byte_pos = 0; // Sending high or low byte
-    reg preamble = 1; // Sending preamble
-    reg[3:0] preamble_counter = 15;
+    localparam STATE_IDLE = 2'b00;
+    localparam STATE_PREAMBLE = 2'b01;
+    localparam STATE_DATA = 2'b10;
+    localparam STATE_CRC = 2'b11;
 
-    // assign eth_txd = byte_pos ? tx_high : tx_low;
+    reg[1:0] tx_state;
+
+    wire[7:0] rd_data = fifo_mem[rd_ptr][7:0]; // Current data
+    wire rd_sop = fifo_mem[rd_ptr][8]; // Current sop value
+    wire rd_eop = fifo_mem[rd_ptr][9]; // Current eop value
+
+    reg crc_en = 0;
+    wire[31:0] crc_out;
+
+    reg[15:0] tx_counter = 0; // Position within packet, increments after every half byte
+    reg[7:0] wait_counter = 0;
+    reg[2:0] crc_counter = 0;
+
+    CRC32 crc32 (
+        .clk(eth_txclk),
+        .rst(rst_int),
+        .data_in(rd_data),
+        .data_valid(crc_en),
+        .crc_out(crc_out)
+    );
 
     always @(*) begin
-        if (preamble)
-            if (preamble_counter == 0)
-                eth_txd = 4'hb;
-            else
-                eth_txd = 4'ha;
-        else
-            if (byte_pos)
-                eth_txd = tx_high;
-            else
-                eth_txd = tx_low;
+        case (tx_state)
+            // Send preamble of 55...55D
+            STATE_PREAMBLE: begin
+                eth_txen = 1'b1;
+
+                if (tx_counter < 16'h00f) begin
+                    eth_txd = 4'h5;
+                end else begin
+                    eth_txd = 4'hd;
+                end
+            end
+
+            // Send packet data
+            STATE_DATA: begin
+                eth_txen = 1'b1;
+
+                if (tx_counter[0]) begin
+                    eth_txd = rd_data[7:4];
+                end else begin
+                    eth_txd = rd_data[3:0];
+                end
+            end
+
+            // Send CRC
+            STATE_CRC: begin
+                eth_txen = 1'b1;
+
+                eth_txd = {
+                    crc_out[28-crc_counter*4],
+                    crc_out[29-crc_counter*4],
+                    crc_out[30-crc_counter*4],
+                    crc_out[31-crc_counter*4]
+                };
+            end
+
+            // Idle
+            default: begin
+                eth_txd = 4'b0;
+                eth_txen = 1'b0;
+            end
+        endcase
     end
 
     always @(posedge eth_txclk) begin
-        if (packets_ready > 0) begin
-            if (preamble) begin // Preamble
-                if (preamble_counter == 0) begin
-                    eth_txd <= 4'hb;
-                    eth_txen <= 1;
-                end else begin
-                    eth_txd <= 4'ha;
-                    eth_txen <= 1;
+        if (rst_int) begin
+            rst_ack <= 1;
+            rd_ptr <= 0;
+            tx_state <= STATE_IDLE;
+            tx_counter <= 0;
+        end else begin
+            rst_ack <= 0;
+            tx_counter <= tx_counter + 1;
+
+            case (tx_state)
+                STATE_IDLE: begin
+                    if (wait_counter > 0) begin
+                        wait_counter <= wait_counter - 1;
+                    end else if (packets_ready > 0) begin
+                        tx_counter <= 0;
+
+                        if (rd_sop) begin
+                            tx_state <= STATE_PREAMBLE;
+                        end else begin
+                            rd_ptr <= rd_ptr + 1;
+                        end
+                    end
                 end
 
-                preamble_counter <= preamble_counter - 1;
-            end else begin // Packet
-                byte_pos <= ~byte_pos;
-
-                if (byte_pos) begin
-                    eth_txd <= tx_high;
-                    rd_ptr <= rd_ptr + 1;
-                end else begin
-                    eth_txd <= tx_low;
+                STATE_PREAMBLE: begin
+                    if (tx_counter == 16'hf) begin
+                        tx_state <= STATE_DATA;
+                        crc_en <= 1;
+                    end
                 end
-            end
+
+                STATE_DATA: begin
+                    if (tx_counter[0]) begin
+                        rd_ptr <= rd_ptr + 1; // Increment read pointer
+
+                        crc_en <= 1; // Calculate CRC on every other cycle
+
+                        // End transmission
+                        if (rd_eop) begin
+                            tx_state <= STATE_CRC;
+                            crc_en <= 0;
+                        end
+                    end else begin
+                        crc_en <= 0;
+                    end
+                end
+
+                STATE_CRC: begin
+                    crc_counter <= crc_counter + 1;
+
+                    if (crc_counter == 3'h7) begin
+                        tx_state <= STATE_IDLE;
+                        wait_counter <= WAIT_LEN;
+                    end
+                end
+            endcase
         end
     end
 

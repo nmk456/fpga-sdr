@@ -23,6 +23,7 @@ Random notes on Ethernet and how it's used in this project
 * Least significant nibble (and bit within nibble) is transmitted first for a given byte
     * Ex: 0x1c transmitted as 0xc first and 0x1 second, which is transmitted as (starting on the left): 0011 1000
     * TXD[0] is the first bit transmitted
+    * CRC is transmitted MSB first, ie x31, x30, ..., x1, x0
 * Need to transmit preamble and SOF signals first
 
 ## Intel Ethernet IP
