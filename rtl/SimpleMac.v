@@ -35,12 +35,12 @@ module SimpleMac (
 
     // 2048 byte deep FIFO
     // FIFO stores 8 data bits, sop, eop, and err signals
-    // single entry = {eop, sop, data}, 11 bits wide
+    // single entry = {eop, sop, data}, 10 bits wide
 
-    reg[9:0] fifo_mem[2047:0];
-    reg[10:0] rd_ptr = 0;
-    reg[10:0] wr_ptr = 0;
-    wire[10:0] fifo_count = wr_ptr - rd_ptr;
+    reg[9:0] fifo_mem[4095:0];
+    reg[11:0] rd_ptr = 0;
+    reg[11:0] wr_ptr = 0;
+    wire[11:0] fifo_count = wr_ptr - rd_ptr;
 
     /* verilator lint_off WIDTH */
     assign tx_a_full = fifo_count > 2048 - ALMOST_FULL_THRESHOLD;
@@ -62,13 +62,11 @@ module SimpleMac (
     // Write logic
 
     always @(posedge tx_clk) begin
-        if (rst) begin
+        if (rst | rst_int) begin
             if (~rst_int) begin
-                if (rst_ack) begin
-                    rst_int <= 0;
-                end else begin
-                    rst_int <= 0;
-                end
+                rst_int <= 1;
+            end else if (rst_ack) begin
+                rst_int <= 0;
             end
             wr_ptr <= 0;
             packets_ready <= 0;
@@ -96,15 +94,19 @@ module SimpleMac (
     wire rd_eop = fifo_mem[rd_ptr][9]; // Current eop value
 
     reg crc_en = 0;
+    reg crc_init = 0;
+    wire crc_rst = crc_init | rst_int;
     wire[31:0] crc_out;
 
     reg[15:0] tx_counter = 0; // Position within packet, increments after every half byte
     reg[7:0] wait_counter = 0;
     reg[2:0] crc_counter = 0;
 
+    assign eth_rstn = ~rst_int;
+
     CRC32 crc32 (
         .clk(eth_txclk),
-        .rst(rst_int),
+        .rst(crc_rst),
         .data_in(rd_data),
         .data_valid(crc_en),
         .crc_out(crc_out)
@@ -168,8 +170,10 @@ module SimpleMac (
                 STATE_IDLE: begin
                     if (wait_counter > 0) begin
                         wait_counter <= wait_counter - 1;
+                        crc_init = 1;
                     end else if (packets_ready > 0) begin
                         tx_counter <= 0;
+                        crc_init = 0;
 
                         if (rd_sop) begin
                             tx_state <= STATE_PREAMBLE;

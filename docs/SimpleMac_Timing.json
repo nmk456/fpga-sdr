@@ -4,38 +4,42 @@
             "TX Avalon-ST",
             {
                 "name": "tx_clk",
-                "wave": "P...|...|................."
+                "wave": "P......|......................"
             },
             {
                 "name": "tx_data",
-                "wave": "x.55|55x|......",
-                "data": "d0 d1 dn-1 dn"
+                "wave": "x.5555x|......................",
+                "data": "d0 d1 d2 d3"
             },
             {
                 "name": "tx_sop",
-                "wave": "0.10|...|......"
+                "wave": "0.10...|......................"
             },
             {
                 "name": "tx_eop",
-                "wave": "0...|.10|......"
+                "wave": "0....10|......................"
             },
             {
                 "name": "tx_rdy",
-                "wave": "01..|...|......"
+                "wave": "01.....|......................"
             },
             {
                 "name": "tx_wren",
-                "wave": "0.1.|..0|......"
+                "wave": "0.1...0|......................"
             }
         ],
         {},
         [
             "Input Internals",
             {
-                "name": "wr_ptr"
+                "name": "wr_ptr",
+                "wave": "2..2.22x......................",
+                "data": "0 1 n-1 n"
             },
             {
-                "name": "wr_data"
+                "name": "wr_data",
+                "wave": "x.55.55.......................",
+                "data": "0,1,d0 0,0,d1 0,0,d2 1,0,d3 0,1,d4"
             }
         ],
         {},
@@ -43,16 +47,16 @@
             "MII",
             {
                 "name": "eth_txclk",
-                "wave": "P.......|........................"
+                "wave": "P......|......................"
             },
             {
                 "name": "eth_txen",
-                "wave": "0.......|.1.....................0"
+                "wave": "0......|.1...................0"
             },
             {
                 "name": "eth_txd",
-                "wave": "x.......|.5<5|>55555555555555555555x",
-                "data": "5 5 5 D d0l d0h d1l d1h d2l d2h d3l d3h d4l d4h CRC CRC CRC CRC CRC CRC CRC CRC"
+                "wave": "x......|.5<5|>555555555555555555x",
+                "data": "5 5 5 D d0l d0h d1l d1h d2l d2h d3l d3h CRC CRC CRC CRC CRC CRC CRC CRC"
             }
         ],
         {},
@@ -60,33 +64,33 @@
             "Output Internals",
             {
                 "name": "tx_counter",
-                "wave": "x.......|3.<3|>33333333333333333333.",
+                "wave": "x......|3.<3|>333333333333333333.",
                 "data": "0 1 E F 10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F 20 21"
             },
             {
                 "name": "output_state",
-                "wave": "4.......|.4...4.........4.......4",
+                "wave": "4......|.4...4.......4.......4",
                 "data": "IDLE PREAMBLE DATA CRC IDLE"
             },
             {
                 "name": "rd_ptr",
-                "wave": "2...............2.2.2.2..........",
+                "wave": "2......|.......2.2.2.2........",
                 "data": "0 1 2 3 4 5 6 7 8 9 A B C D E F"
             },
             {
                 "name": "rd_data",
-                "wave": "x.......|5......5.5.5.5..........",
-                "data": "0,1,d0 0,0,d1 0,0,d2 0,0,d3 0,0,d4"
+                "wave": "x......|5......5.5.5.5........",
+                "data": "0,1,d0 0,0,d1 0,0,d2 1,0,d3 0,1,d4"
             },
             {
                 "name": "crc_counter",
-                "wave": "3........................33333333",
+                "wave": "3......|..............33333333",
                 "data": "0 1 2 3 4 5 6 7 0"
             }
         ]
     ],
     "foot": {
         "text": 
-            "Avalon-ST and MII clocks are shown to be the same and preamble is shorted for simplicity"
+            "Avalon-ST and MII clocks are the same frequency and preamble is shorted for simplicity"
     }
 }
