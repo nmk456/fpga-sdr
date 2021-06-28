@@ -139,9 +139,11 @@ module Packetizer (
                             2'b10: tx_data <= next_I[7:0];
                             2'b11: tx_data <= next_I[15:8];
                             2'b00: tx_data <= next_Q[7:0];
-                            2'b01: tx_data <= next_Q[15:8];
+                            2'b01: begin
+                                tx_data <= next_Q[15:8];
+                                IQready <= 0;
+                            end
                         endcase
-                        IQready <= 0;
                     end
                     16'h05e9: begin
                         tx_data <= next_Q[15:8];
