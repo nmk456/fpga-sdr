@@ -1,0 +1,51 @@
+[*]
+[*] GTKWave Analyzer v3.3.100 (w)1999-2019 BSI
+[*] Mon Jun 28 22:50:54 2021
+[*]
+[dumpfile] "\\wsl$\Ubuntu-20.04\home\nathan\fpga\sdr\tb\Packetizer\dump.fst"
+[dumpfile_mtime] "Mon Jun 28 22:45:09 2021"
+[dumpfile_size] 5745
+[savefile] "\\wsl$\Ubuntu-20.04\home\nathan\fpga\sdr\tb\Packetizer\Packetizer.gtkw"
+[timestart] 0
+[size] 1920 1017
+[pos] -9 -9
+*-6.000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] .
+[sst_width] 211
+[signals_width] 190
+[sst_expanded] 1
+[sst_vpaned_height] 301
+@28
+clk
+rst
+@200
+-LVDS Input
+@22
+rd_data[31:0]
+@28
+rd_dr
+rd_en
+@200
+-Avalon-ST Output
+@28
+tx_clk
+@22
+tx_data[7:0]
+@28
+tx_rdy
+tx_wren
+tx_sop
+tx_eop
+tx_err
+@200
+-Internal
+@28
+Packetizer.IQready
+@22
+Packetizer.wait_counter[7:0]
+Packetizer.packet_counter[63:0]
+Packetizer.next_I[15:0]
+Packetizer.next_Q[15:0]
+Packetizer.tx_word[15:0]
+[pattern_trace] 1
+[pattern_trace] 0
