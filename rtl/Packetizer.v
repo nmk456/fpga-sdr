@@ -26,7 +26,7 @@ module Packetizer (
 );
 
     parameter source_mac = {8'h02, 8'h12, 8'h34, 8'h56, 8'h78, 8'h90};
-    parameter dest_mac = {8'h04, 8'h92, 8'h26, 8'h57, 8'h61, 8'h0a}; // Change this
+    parameter dest_mac = {8'h0, 8'h0, 8'h0, 8'h0, 8'h0, 8'h0}; // Change this
 
     parameter source_ip = {8'd192, 8'd168, 8'd50, 8'd50};
     parameter dest_ip = {8'd192, 8'd168, 8'd2, 8'd1}; // Change this
