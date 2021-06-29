@@ -1,10 +1,10 @@
 [*]
 [*] GTKWave Analyzer v3.3.100 (w)1999-2019 BSI
-[*] Tue Jun 29 02:37:39 2021
+[*] Tue Jun 29 03:47:20 2021
 [*]
 [dumpfile] "\\wsl$\Ubuntu-20.04\home\nathan\fpga\sdr\tb\SimpleMac\dump.fst"
-[dumpfile_mtime] "Tue Jun 29 02:35:01 2021"
-[dumpfile_size] 32244
+[dumpfile_mtime] "Tue Jun 29 03:45:23 2021"
+[dumpfile_size] 32265
 [savefile] "\\wsl$\Ubuntu-20.04\home\nathan\fpga\sdr\tb\SimpleMac\SimpleMac.gtkw"
 [timestart] 6873
 [size] 1920 1017
@@ -36,6 +36,8 @@ tx_a_empty
 -FIFO
 @22
 SimpleMac.packets_ready[3:0]
+@23
+SimpleMac.wr_data[9:0]
 @200
 -MII
 @28
@@ -60,10 +62,10 @@ eth_rxer
 SimpleMac.rst_ack
 SimpleMac.rst_int
 SimpleMac.tx_state[1:0]
-@23
-SimpleMac.wr_ptr[11:0]
 @22
+SimpleMac.wr_ptr[11:0]
 SimpleMac.rd_ptr[11:0]
+SimpleMac.rd_fifo_data[9:0]
 SimpleMac.rd_data[7:0]
 @28
 SimpleMac.rd_sop

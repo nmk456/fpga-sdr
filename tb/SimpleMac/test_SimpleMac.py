@@ -31,9 +31,9 @@ async def send_avalonst(dut, data):
     while True:
         dut.tx_data <= data[i]
 
-        dut.tx_eop <= 1 if i == len(data) - 1 else 0
-        
-        dut.tx_sop <= 1 if i == 0 else 0
+        dut.tx_eop <= (1 if (i == len(data) - 1) else 0)
+
+        dut.tx_sop <= (1 if (i == 0) else 0)
 
         await RisingEdge(dut.tx_clk)
 
@@ -80,8 +80,8 @@ async def recv_mii(dut):
 async def sequential_data_test(dut):
     PACKETS = 16
     # PACKETS = 1
-    # PACKET_LEN = 1518
-    PACKET_LEN = 64
+    PACKET_LEN = 1518
+    # PACKET_LEN = 64
 
     dut._log.info("Running test")
 

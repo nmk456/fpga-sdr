@@ -31,13 +31,12 @@ module SimpleMac (
 
     parameter ALMOST_FULL_THRESHOLD = 64;
     parameter ALMOST_EMPTY_THRESHOLD = 64;
-    parameter WAIT_LEN = 24; // 24 nibbles is 12 bytes or 96 bits, the standard minimum interpacket gap
+    parameter WAIT_LEN = 24; // 24 nibbles is 96 bits, standard minimum interpacket gap
 
     // 2048 byte deep FIFO
     // FIFO stores 8 data bits, sop, eop, and err signals
     // single entry = {eop, sop, data}, 10 bits wide
 
-    // reg[9:0] fifo_mem[4095:0];
     reg[11:0] rd_ptr = 0;
     reg[11:0] wr_ptr = 0;
     wire[11:0] fifo_count = wr_ptr - rd_ptr;
@@ -83,7 +82,6 @@ module SimpleMac (
             wr_ptr <= 0;
             packets_ready <= 0;
         end else if (tx_wren & tx_rdy) begin
-            // fifo_mem[wr_ptr] <= {tx_eop, tx_sop, tx_data};
             wr_data <= {tx_eop, tx_sop, tx_data};
             wr_en <= 1;
             wr_ptr <= wr_ptr + 1;
@@ -103,8 +101,9 @@ module SimpleMac (
 
     reg[1:0] tx_state;
 
-    reg[7:0] rd_data; // Current data
-    reg rd_sop, rd_eop; // Current sop, eop values
+    wire[7:0] rd_data = rd_fifo_data[7:0];
+    wire rd_sop = rd_fifo_data[8];
+    wire rd_eop = rd_fifo_data[9];
 
     reg crc_en = 0;
     reg crc_init = 0;
@@ -170,13 +169,6 @@ module SimpleMac (
     end
 
     always @(posedge eth_txclk) begin
-        // rd_data <= fifo_mem[rd_ptr][7:0];
-        // rd_sop <= fifo_mem[rd_ptr][8];
-        // rd_eop <= fifo_mem[rd_ptr][9];
-        rd_data <= rd_fifo_data[7:0];
-        rd_sop <= rd_fifo_data[8];
-        rd_eop <= rd_fifo_data[9];
-
         if (rst_int) begin
             rst_ack <= 1;
             rd_ptr <= 0;
@@ -208,14 +200,11 @@ module SimpleMac (
                     if (tx_counter == 16'hf) begin
                         tx_state <= STATE_DATA;
                         crc_en <= 1;
-                        rd_ptr <= rd_ptr + 1; // Increment read pointer
                     end
                 end
 
                 STATE_DATA: begin
                     if (tx_counter[0]) begin
-                        rd_ptr <= rd_ptr + 1; // Increment read pointer
-
                         crc_en <= 1; // Calculate CRC on every other cycle
 
                         // End transmission
@@ -224,8 +213,9 @@ module SimpleMac (
                             crc_en <= 0;
                         end
                     end else begin
-                        // This is here because the fifo takes 1 cycle to read from
-                        // rd_ptr <= rd_ptr + 1; // Increment read pointer
+                        if (~rd_eop) begin
+                            rd_ptr <= rd_ptr + 1; // Increment read pointer
+                        end
 
                         crc_en <= 0;
                     end
