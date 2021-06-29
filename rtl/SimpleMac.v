@@ -59,9 +59,9 @@ module SimpleMac (
     );
 
     /* verilator lint_off WIDTH */
-    assign tx_a_full = fifo_count > 2048 - ALMOST_FULL_THRESHOLD;
+    assign tx_a_full = fifo_count > 4096 - ALMOST_FULL_THRESHOLD;
     assign tx_a_empty = fifo_count < ALMOST_EMPTY_THRESHOLD;
-    assign tx_rdy = ~tx_a_full & ~rst_int;
+    assign tx_rdy = ~tx_a_full & ~rst_int & ~rst;
     /* verilator lint_on WIDTH */
 
     reg[3:0] packets_ready = 0; // Number of complete packets in FIFO

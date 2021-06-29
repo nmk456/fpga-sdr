@@ -1,9 +1,12 @@
-module PacketizerSimpleMac;
+module PacketizerSimpleMac (
+    input clk_50,
+    input rst,
 
-    reg clk_50, eth_txclk;
-
-    reg eth_txen, eth_rstn;
-    reg[3:0] eth_txd;
+    input eth_txclk,
+    output eth_txen,
+    output[3:0] eth_txd,
+    output eth_rstn
+);
 
     wire tx_clk, tx_eop, tx_err, tx_rdy, tx_sop, tx_wren, tx_a_full, tx_a_empty;
     wire[7:0] tx_data;
@@ -27,6 +30,7 @@ module PacketizerSimpleMac;
         .tx_a_empty(tx_a_empty)
     );
 
+    /* verilator lint_off PINMISSING */
     SimpleMac mac0 (
         .rst(rst),
 
@@ -45,5 +49,6 @@ module PacketizerSimpleMac;
         .tx_a_full(tx_a_full),
         .tx_a_empty(tx_a_empty)
     );
+    /* verilator lint_on PINMISSING */
 
 endmodule
