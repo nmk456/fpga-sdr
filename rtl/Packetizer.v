@@ -70,14 +70,17 @@ module Packetizer (
             tx_err <= 1;
             tx_eop <= 1;
         end else begin
-            tx_err <= 0;
-            tx_eop <= 0;
-            tx_sop <= 0;
+            // tx_err <= 0;
+            // tx_eop <= 0;
+            // tx_sop <= 0;
 
             if (wait_counter > 0) begin
                 wait_counter <= wait_counter - 1;
                 tx_wren <= 0;
             end else if (tx_rdy & (IQready | tx_word < 16'h0032) & ~tx_a_full) begin
+                tx_err <= 0;
+                tx_eop <= 0;
+                tx_sop <= 0;
                 tx_wren <= 1;
                 tx_word <= tx_word + 1;
                 case (tx_word)
