@@ -161,7 +161,7 @@ module SimpleMac (
             end
 
             // Idle
-            default: begin
+            STATE_IDLE: begin
                 eth_txd = 4'b0;
                 eth_txen = 1'b0;
             end
