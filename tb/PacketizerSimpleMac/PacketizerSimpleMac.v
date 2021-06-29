@@ -13,7 +13,9 @@ module PacketizerSimpleMac (
     wire tx_clk, tx_eop, tx_err, tx_rdy, tx_sop, tx_wren, tx_a_full, tx_a_empty;
     wire[7:0] tx_data;
 
-    Packetizer packetizer0 (
+    Packetizer #(
+        .DEST_MAC(DEST_MAC)
+    ) packetizer0 (
         .clk(clk_50),
         .rst(rst),
 
@@ -33,9 +35,7 @@ module PacketizerSimpleMac (
     );
 
     /* verilator lint_off PINMISSING */
-    SimpleMac #(
-        .DEST_MAC()
-    ) mac0 (
+    SimpleMac mac0 (
         .rst(rst),
 
         .eth_txclk(eth_txclk),

@@ -28,8 +28,8 @@ module Packetizer (
     parameter SOURCE_MAC = {8'h02, 8'h12, 8'h34, 8'h56, 8'h78, 8'h90};
     parameter DEST_MAC = {8'h0, 8'h0, 8'h0, 8'h0, 8'h0, 8'h0}; // Change this
 
-    parameter SOURCE_IP = {8'd192, 8'd168, 8'd50, 8'd50};
-    parameter DEST_IP = {8'd192, 8'd168, 8'd2, 8'd1}; // Change this
+    parameter SOURCE_IP = {8'd10, 8'd0, 8'd0, 8'd2};
+    parameter DEST_IP = {8'd10, 8'd0, 8'd0, 8'd1}; // Change this
 
     parameter SOURCE_PORT = 16'd32179;
     parameter DEST_PORT = 16'd32179;
