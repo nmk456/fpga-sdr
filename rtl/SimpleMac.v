@@ -48,13 +48,6 @@ module SimpleMac (
     assign tx_rdy = ~tx_a_full & ~rst_int;
     /* verilator lint_on WIDTH */
 
-    integer i;
-    initial begin
-        for (i = 0; i<2048; i=i+1) begin
-            fifo_mem[i] = 0;
-        end
-    end
-
     reg[3:0] packets_ready = 0; // Number of complete packets in FIFO
     reg rst_int = 0;
     reg rst_ack = 0;
@@ -89,9 +82,8 @@ module SimpleMac (
 
     reg[1:0] tx_state;
 
-    wire[7:0] rd_data = fifo_mem[rd_ptr][7:0]; // Current data
-    wire rd_sop = fifo_mem[rd_ptr][8]; // Current sop value
-    wire rd_eop = fifo_mem[rd_ptr][9]; // Current eop value
+    reg[7:0] rd_data; // Current data
+    reg rd_sop, rd_eop; // Current sop, eop values
 
     reg crc_en = 0;
     reg crc_init = 0;
@@ -157,6 +149,10 @@ module SimpleMac (
     end
 
     always @(posedge eth_txclk) begin
+        rd_data <= fifo_mem[rd_ptr][7:0];
+        rd_sop <= fifo_mem[rd_ptr][8];
+        rd_eop <= fifo_mem[rd_ptr][9];
+
         if (rst_int) begin
             rst_ack <= 1;
             rd_ptr <= 0;
@@ -179,6 +175,7 @@ module SimpleMac (
                             tx_state <= STATE_PREAMBLE;
                         end else begin
                             rd_ptr <= rd_ptr + 1;
+                            wait_counter <= 1; // This gives the fifo a cycle to work
                         end
                     end
                 end
@@ -192,7 +189,7 @@ module SimpleMac (
 
                 STATE_DATA: begin
                     if (tx_counter[0]) begin
-                        rd_ptr <= rd_ptr + 1; // Increment read pointer
+                        // rd_ptr <= rd_ptr + 1; // Increment read pointer
 
                         crc_en <= 1; // Calculate CRC on every other cycle
 
@@ -202,6 +199,9 @@ module SimpleMac (
                             crc_en <= 0;
                         end
                     end else begin
+                        // This is here because the fifo takes 1 cycle to read from
+                        rd_ptr <= rd_ptr + 1; // Increment read pointer
+
                         crc_en <= 0;
                     end
                 end
