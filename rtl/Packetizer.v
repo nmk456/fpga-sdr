@@ -75,8 +75,17 @@ module Packetizer (
             // tx_sop <= 0;
 
             if (wait_counter > 0) begin
-                wait_counter <= wait_counter - 1;
-                tx_wren <= 0;
+                if (tx_rdy & tx_eop) begin
+                    tx_eop <= 0;
+                    tx_wren <= 0;
+                end else if (~tx_eop) begin
+                    wait_counter <= wait_counter - 1;
+                end
+                // wait_counter <= wait_counter - 1;
+                // if (tx_rdy & tx_wren & tx_eop) begin
+                //     tx_wren <= 0;
+                // end
+                // tx_wren <= 0;
             end else if (tx_rdy & (IQready | tx_word < 16'h0032) & ~tx_a_full) begin
                 tx_err <= 0;
                 tx_eop <= 0;
