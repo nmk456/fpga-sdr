@@ -25,14 +25,14 @@ module Packetizer (
     input tx_a_empty
 );
 
-    parameter source_mac = {8'h02, 8'h12, 8'h34, 8'h56, 8'h78, 8'h90};
-    parameter dest_mac = {8'h0, 8'h0, 8'h0, 8'h0, 8'h0, 8'h0}; // Change this
+    parameter SOURCE_MAC = {8'h02, 8'h12, 8'h34, 8'h56, 8'h78, 8'h90};
+    parameter DEST_MAC = {8'h0, 8'h0, 8'h0, 8'h0, 8'h0, 8'h0}; // Change this
 
-    parameter source_ip = {8'd192, 8'd168, 8'd50, 8'd50};
-    parameter dest_ip = {8'd192, 8'd168, 8'd2, 8'd1}; // Change this
+    parameter SOURCE_IP = {8'd192, 8'd168, 8'd50, 8'd50};
+    parameter DEST_IP = {8'd192, 8'd168, 8'd2, 8'd1}; // Change this
 
-    parameter source_port = 16'd32179;
-    parameter dest_port = 16'd32179;
+    parameter SOURCE_PORT = 16'd32179;
+    parameter DEST_PORT = 16'd32179;
 
     // IQ Data
 
@@ -86,19 +86,19 @@ module Packetizer (
                 case (tx_word)
                     16'h0000: begin
                         tx_sop <= 1;
-                        tx_data <= dest_mac[47:40];
+                        tx_data <= DEST_MAC[47:40];
                     end
-                    16'h0001: tx_data <= dest_mac[39:32];
-                    16'h0002: tx_data <= dest_mac[31:24];
-                    16'h0003: tx_data <= dest_mac[23:16];
-                    16'h0004: tx_data <= dest_mac[15:8];
-                    16'h0005: tx_data <= dest_mac[7:0];
-                    16'h0006: tx_data <= source_mac[47:40];
-                    16'h0007: tx_data <= source_mac[39:32];
-                    16'h0008: tx_data <= source_mac[31:24];
-                    16'h0009: tx_data <= source_mac[23:16];
-                    16'h000a: tx_data <= source_mac[15:8];
-                    16'h000b: tx_data <= source_mac[7:0];
+                    16'h0001: tx_data <= DEST_MAC[39:32];
+                    16'h0002: tx_data <= DEST_MAC[31:24];
+                    16'h0003: tx_data <= DEST_MAC[23:16];
+                    16'h0004: tx_data <= DEST_MAC[15:8];
+                    16'h0005: tx_data <= DEST_MAC[7:0];
+                    16'h0006: tx_data <= SOURCE_MAC[47:40];
+                    16'h0007: tx_data <= SOURCE_MAC[39:32];
+                    16'h0008: tx_data <= SOURCE_MAC[31:24];
+                    16'h0009: tx_data <= SOURCE_MAC[23:16];
+                    16'h000a: tx_data <= SOURCE_MAC[15:8];
+                    16'h000b: tx_data <= SOURCE_MAC[7:0];
                     16'h000c: tx_data <= 8'h08;
                     16'h000d: tx_data <= 8'h00;
                     16'h000e: tx_data <= 8'h45;
@@ -113,18 +113,18 @@ module Packetizer (
                     16'h0017: tx_data <= 8'h11;
                     16'h0018: tx_data <= ip_checksum[15:8];
                     16'h0019: tx_data <= ip_checksum[7:0];
-                    16'h001a: tx_data <= source_ip[31:24];
-                    16'h001b: tx_data <= source_ip[23:16];
-                    16'h001c: tx_data <= source_ip[15:8];
-                    16'h001d: tx_data <= source_ip[7:0];
-                    16'h001e: tx_data <= dest_ip[31:24];
-                    16'h001f: tx_data <= dest_ip[23:16];
-                    16'h0020: tx_data <= dest_ip[15:8];
-                    16'h0021: tx_data <= dest_ip[7:0];
-                    16'h0022: tx_data <= source_port[15:8];
-                    16'h0023: tx_data <= source_port[7:0];
-                    16'h0024: tx_data <= dest_port[15:8];
-                    16'h0025: tx_data <= dest_port[7:0];
+                    16'h001a: tx_data <= SOURCE_IP[31:24];
+                    16'h001b: tx_data <= SOURCE_IP[23:16];
+                    16'h001c: tx_data <= SOURCE_IP[15:8];
+                    16'h001d: tx_data <= SOURCE_IP[7:0];
+                    16'h001e: tx_data <= DEST_IP[31:24];
+                    16'h001f: tx_data <= DEST_IP[23:16];
+                    16'h0020: tx_data <= DEST_IP[15:8];
+                    16'h0021: tx_data <= DEST_IP[7:0];
+                    16'h0022: tx_data <= SOURCE_PORT[15:8];
+                    16'h0023: tx_data <= SOURCE_PORT[7:0];
+                    16'h0024: tx_data <= DEST_PORT[15:8];
+                    16'h0025: tx_data <= DEST_PORT[7:0];
                     16'h0026: tx_data <= 8'h05;
                     16'h0027: tx_data <= 8'hc8;
                     16'h0028: tx_data <= udp_checksum[15:8];
