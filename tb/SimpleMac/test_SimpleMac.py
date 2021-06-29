@@ -80,8 +80,8 @@ async def recv_mii(dut):
 async def sequential_data_test(dut):
     PACKETS = 16
     # PACKETS = 1
-    PACKET_LEN = 1518
-    # PACKET_LEN = 64
+    # PACKET_LEN = 1518
+    PACKET_LEN = 64
 
     dut._log.info("Running test")
 

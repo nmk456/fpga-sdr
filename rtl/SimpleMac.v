@@ -37,10 +37,27 @@ module SimpleMac (
     // FIFO stores 8 data bits, sop, eop, and err signals
     // single entry = {eop, sop, data}, 10 bits wide
 
-    reg[9:0] fifo_mem[4095:0];
+    // reg[9:0] fifo_mem[4095:0];
     reg[11:0] rd_ptr = 0;
     reg[11:0] wr_ptr = 0;
     wire[11:0] fifo_count = wr_ptr - rd_ptr;
+
+    reg wr_en;
+    reg[9:0] wr_data;
+    wire[9:0] rd_fifo_data;
+
+    SimpleMacFifo fifo0 (
+        // Write
+        .data(wr_data),
+        .write_addr(wr_ptr),
+        .we(wr_en),
+        .write_clock(tx_clk),
+
+        // Read
+        .q(rd_fifo_data),
+        .read_addr(rd_ptr),
+        .read_clock(eth_txclk)
+    );
 
     /* verilator lint_off WIDTH */
     assign tx_a_full = fifo_count > 2048 - ALMOST_FULL_THRESHOLD;
@@ -55,6 +72,8 @@ module SimpleMac (
     // Write logic
 
     always @(posedge tx_clk) begin
+        wr_en <= 0;
+
         if (rst | rst_int) begin
             if (~rst_int) begin
                 rst_int <= 1;
@@ -64,7 +83,9 @@ module SimpleMac (
             wr_ptr <= 0;
             packets_ready <= 0;
         end else if (tx_wren & tx_rdy) begin
-            fifo_mem[wr_ptr] <= {tx_eop, tx_sop, tx_data};
+            // fifo_mem[wr_ptr] <= {tx_eop, tx_sop, tx_data};
+            wr_data <= {tx_eop, tx_sop, tx_data};
+            wr_en <= 1;
             wr_ptr <= wr_ptr + 1;
 
             if (tx_eop) begin
@@ -149,9 +170,12 @@ module SimpleMac (
     end
 
     always @(posedge eth_txclk) begin
-        rd_data <= fifo_mem[rd_ptr][7:0];
-        rd_sop <= fifo_mem[rd_ptr][8];
-        rd_eop <= fifo_mem[rd_ptr][9];
+        // rd_data <= fifo_mem[rd_ptr][7:0];
+        // rd_sop <= fifo_mem[rd_ptr][8];
+        // rd_eop <= fifo_mem[rd_ptr][9];
+        rd_data <= rd_fifo_data[7:0];
+        rd_sop <= rd_fifo_data[8];
+        rd_eop <= rd_fifo_data[9];
 
         if (rst_int) begin
             rst_ack <= 1;
@@ -175,7 +199,7 @@ module SimpleMac (
                             tx_state <= STATE_PREAMBLE;
                         end else begin
                             rd_ptr <= rd_ptr + 1;
-                            wait_counter <= 1; // This gives the fifo a cycle to work
+                            wait_counter <= 2; // This gives the fifo a cycle to work
                         end
                     end
                 end
@@ -184,12 +208,13 @@ module SimpleMac (
                     if (tx_counter == 16'hf) begin
                         tx_state <= STATE_DATA;
                         crc_en <= 1;
+                        rd_ptr <= rd_ptr + 1; // Increment read pointer
                     end
                 end
 
                 STATE_DATA: begin
                     if (tx_counter[0]) begin
-                        // rd_ptr <= rd_ptr + 1; // Increment read pointer
+                        rd_ptr <= rd_ptr + 1; // Increment read pointer
 
                         crc_en <= 1; // Calculate CRC on every other cycle
 
@@ -200,7 +225,7 @@ module SimpleMac (
                         end
                     end else begin
                         // This is here because the fifo takes 1 cycle to read from
-                        rd_ptr <= rd_ptr + 1; // Increment read pointer
+                        // rd_ptr <= rd_ptr + 1; // Increment read pointer
 
                         crc_en <= 0;
                     end

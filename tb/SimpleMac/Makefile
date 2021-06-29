@@ -11,7 +11,7 @@ MODULE = test_$(DUT)
 
 EXTRA_ARGS += --trace-fst --trace-structs
 
-VERILOG_SOURCES += $(PWD)/../../rtl/lfsr.v $(PWD)/../../rtl/CRC32.v
+VERILOG_SOURCES += $(PWD)/../../rtl/lfsr.v $(PWD)/../../rtl/CRC32.v $(PWD)/../../rtl/SimpleMacFifo.v
 
 include $(shell cocotb-config --makefiles)/Makefile.sim
 
