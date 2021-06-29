@@ -3,6 +3,7 @@ from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge, FallingEdge, Edge, Timer
 from cocotb.binary import BinaryValue
 from cocotb_bus.drivers.avalon import AvalonSTPkts
+from cocotbext.eth import MiiSink
 
 import random
 import numpy as np
@@ -55,6 +56,8 @@ async def sequential_data_test(dut):
     cocotb.fork(Clock(dut.clk_50, 20, units="ns").start())
     cocotb.fork(Clock(dut.eth_txclk, 40, units="ns").start())
 
+    mii_sink = MiiSink(dut.eth_txd, None, dut.eth_txen, dut.eth_txclk)
+
     dut.rst <= 1
 
     await RisingEdge(dut.eth_txclk)
@@ -65,8 +68,10 @@ async def sequential_data_test(dut):
 
     dut.rst <= 0
 
-    for i in range(4):
-        await RisingEdge(dut.eth_txen)
+    data = await mii_sink.recv()
+
+    assert data.check_fcs(), f"{data.get_fcs().hex()}"
+    assert data.error is None
 
     # for i in range(PACKETS):
     #     test_data = list(randbytes(PACKET_LEN))

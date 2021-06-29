@@ -152,12 +152,16 @@ module SimpleMac (
             STATE_CRC: begin
                 eth_txen = 1'b1;
 
-                eth_txd = {
-                    crc_out[28-crc_counter*4],
-                    crc_out[29-crc_counter*4],
-                    crc_out[30-crc_counter*4],
-                    crc_out[31-crc_counter*4]
-                };
+                case (crc_counter)
+                    3'b000: eth_txd = crc_out[3:0];
+                    3'b001: eth_txd = crc_out[7:4];
+                    3'b010: eth_txd = crc_out[11:8];
+                    3'b011: eth_txd = crc_out[15:12];
+                    3'b100: eth_txd = crc_out[19:16];
+                    3'b101: eth_txd = crc_out[23:20];
+                    3'b110: eth_txd = crc_out[27:24];
+                    3'b111: eth_txd = crc_out[31:28];
+                endcase
             end
 
             // Idle

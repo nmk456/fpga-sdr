@@ -55,7 +55,7 @@ async def sequential_data_test(dut):
 
     assert pkt[Ether].src == "02:12:34:56:78:90"
     assert pkt[Ether].type == 0x800, f"Ether type is {pkt[Ether].type}"
-    assert pkt[IP].src == "192.168.50.50"
+    assert pkt[IP].src == "10.0.0.2"
     assert pkt[IP].proto == 0x11
     assert pkt[UDP].sport == 32179
     assert pkt[UDP].len == 1480
