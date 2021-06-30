@@ -80,6 +80,8 @@ module SimpleMac (
                 rst_int <= 0;
             end
             wr_ptr <= 0;
+            wr_en <= 0;
+            wr_data <= 0;
             packets_ready <= 0;
         end else if (tx_wren & tx_rdy) begin
             wr_data <= {tx_eop, tx_sop, tx_data};
@@ -178,6 +180,7 @@ module SimpleMac (
             rd_ptr <= 0;
             tx_state <= STATE_IDLE;
             tx_counter <= 0;
+            wait_counter <= 64;
         end else begin
             rst_ack <= 0;
             tx_counter <= tx_counter + 1;
