@@ -1,6 +1,6 @@
 import cocotb
 from cocotb.clock import Clock
-from cocotb.triggers import RisingEdge, FallingEdge, Edge, Timer
+from cocotb.triggers import RisingEdge, FallingEdge, Edge, ClockCycles, Event
 from cocotb.binary import BinaryValue
 from cocotb_bus.drivers.avalon import AvalonSTPkts
 from cocotbext.eth import MiiSink
@@ -44,6 +44,21 @@ async def recv_mii(dut):
 
     return byte_data
 
+async def timeout_wait(dut, event: Event):
+    TIMEOUT_LEN = 5000
+
+    timer = TIMEOUT_LEN
+
+    while True:
+        await RisingEdge(dut.eth_txclk)
+
+        timer -= 1
+
+        if event.is_set():
+            timer = TIMEOUT_LEN
+
+        assert timer > 0, "Timeout"
+
 @cocotb.test()
 async def sequential_data_test(dut):
     PACKETS = 16
@@ -58,6 +73,9 @@ async def sequential_data_test(dut):
 
     mii_sink = MiiSink(dut.eth_txd, None, dut.eth_txen, dut.eth_txclk)
 
+    timeout = Event()
+    cocotb.fork(timeout_wait(dut, timeout))
+
     dut.rst <= 1
 
     await RisingEdge(dut.eth_txclk)
@@ -68,10 +86,17 @@ async def sequential_data_test(dut):
 
     dut.rst <= 0
 
-    data = await mii_sink.recv()
+    for i in range(16):
+        dut._log.info(f"Receiving packet {i}")
+        data = await mii_sink.recv()
 
-    assert data.check_fcs(), f"{data.get_fcs().hex()}"
-    assert data.error is None
+        timeout.set()
+        await RisingEdge(dut.eth_txclk)
+        timeout.clear()
+
+        assert data.check_fcs(), f"{data.get_fcs().hex()}"
+        assert data.error is None
+        assert len(data.get_payload()) == 1514, f"Payload length is {len(data.get_payload())}"
 
     # for i in range(PACKETS):
     #     test_data = list(randbytes(PACKET_LEN))

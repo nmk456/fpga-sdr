@@ -65,6 +65,8 @@ module SimpleMac (
     /* verilator lint_on WIDTH */
 
     reg[3:0] packets_ready = 0; // Number of complete packets in FIFO
+    reg finished_packet = 0;
+    reg finished_packet_ack = 0;
     reg rst_int = 0;
     reg rst_ack = 0;
 
@@ -72,6 +74,13 @@ module SimpleMac (
 
     always @(posedge tx_clk) begin
         wr_en <= 0;
+
+        if (finished_packet & ~finished_packet_ack) begin
+            finished_packet_ack <= 1;
+            packets_ready <= packets_ready - 1;
+        end else if (~finished_packet) begin
+            finished_packet_ack <= 0;
+        end
 
         if (rst | rst_int) begin
             if (~rst_int) begin
@@ -185,6 +194,10 @@ module SimpleMac (
             rst_ack <= 0;
             tx_counter <= tx_counter + 1;
 
+            if (finished_packet_ack) begin
+                finished_packet <= 0;
+            end
+
             case (tx_state)
                 STATE_IDLE: begin
                     if (wait_counter > 0) begin
@@ -234,6 +247,7 @@ module SimpleMac (
                     if (crc_counter == 3'h7) begin
                         tx_state <= STATE_IDLE;
                         wait_counter <= WAIT_LEN;
+                        finished_packet <= 1;
                     end
                 end
             endcase

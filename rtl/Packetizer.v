@@ -55,13 +55,13 @@ module Packetizer (
     assign tx_clk = clk;
 
     always @(posedge clk) begin
-        if (rd_en & rd_dr) begin
-            IQdata <= rd_data;
-            rd_en <= 0;
-            IQready <= 1;
-        end else if (rd_dr & ~IQready) begin
-            rd_en <= 1;
-        end
+        // if (rd_en & rd_dr) begin
+        //     IQdata <= rd_data;
+        //     rd_en <= 0;
+        //     IQready <= 1;
+        // end else if (rd_dr & ~IQready) begin
+        //     rd_en <= 1;
+        // end
 
         if (rst) begin
             tx_word <= 0;
@@ -74,6 +74,7 @@ module Packetizer (
             // tx_err <= 0;
             // tx_eop <= 0;
             // tx_sop <= 0;
+            rd_en <= 0;
 
             if (wait_counter > 0) begin
                 if (tx_rdy & tx_eop) begin
@@ -87,18 +88,34 @@ module Packetizer (
                 //     tx_wren <= 0;
                 // end
                 // tx_wren <= 0;
-            end else if (tx_rdy & (IQready | tx_word < 16'h0032) & ~tx_a_full) begin
+            end else /*if (tx_rdy & (IQready | tx_word < 16'h0032) & ~tx_a_full)*/ begin
                 tx_err <= 0;
                 tx_eop <= 0;
-                tx_sop <= 0;
-                tx_wren <= 1;
-                tx_word <= tx_word + 1;
+                // tx_sop <= 0;
+                // tx_wren <= 1;
+
+                if (tx_rdy) begin
+                    tx_wren <= 1;
+                end
+
+                if (tx_rdy & tx_wren) begin
+                    tx_word <= tx_word + 1;
+                end
+
+                if (tx_rdy) begin
                 case (tx_word)
                     16'h0000: begin
+                        if (tx_rdy) begin
+                            // tx_wren <= 1;
+                            tx_word <= tx_word + 1;
+                        end
                         tx_sop <= 1;
                         tx_data <= DEST_MAC[47:40];
                     end
-                    16'h0001: tx_data <= DEST_MAC[39:32];
+                    16'h0001: begin
+                        tx_sop <= 0;
+                        tx_data <= DEST_MAC[39:32];
+                    end
                     16'h0002: tx_data <= DEST_MAC[31:24];
                     16'h0003: tx_data <= DEST_MAC[23:16];
                     16'h0004: tx_data <= DEST_MAC[15:8];
@@ -148,13 +165,23 @@ module Packetizer (
                     16'h0030: tx_data <= packet_counter[55:48];
                     16'h0031: tx_data <= packet_counter[63:56];
                     default: begin
+                        // if (~IQready) begin
+                        //     tx_wren <= 0;
+                        // end
+
                         case (tx_word[1:0])
-                            2'b10: tx_data <= next_I[7:0];
+                            2'b10: begin
+                                tx_data <= next_I[7:0];
+                                // tx_wren <= 1;
+                            end
                             2'b11: tx_data <= next_I[15:8];
                             2'b00: tx_data <= next_Q[7:0];
                             2'b01: begin
                                 tx_data <= next_Q[15:8];
-                                IQready <= 0;
+                                IQdata <= rd_data;
+                                rd_en <= 1;
+                                // IQready <= 0;
+                                // tx_wren <= 0;
                             end
                         endcase
                     end
@@ -167,9 +194,10 @@ module Packetizer (
                         wait_counter <= 16;
                     end
                 endcase
-            end else begin
-                tx_wren <= 0;
-            end
+                end
+            end //else if (tx_rdy) begin
+                // tx_wren <= 0;
+            // end
         end
     end
 

@@ -8,7 +8,7 @@ module PacketizerSimpleMac (
     output eth_rstn
 );
 
-    parameter DEST_MAC = {8'h0, 8'h0, 8'h0, 8'h0, 8'h0, 8'h0};
+    parameter DEST_MAC = {8'hff, 8'h0, 8'hff, 8'h0, 8'hff, 8'h0};
 
     wire tx_clk, tx_eop, tx_err, tx_rdy, tx_sop, tx_wren, tx_a_full, tx_a_empty;
     wire[7:0] tx_data;
