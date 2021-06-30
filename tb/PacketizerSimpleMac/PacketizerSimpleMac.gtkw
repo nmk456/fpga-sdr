@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.3.100 (w)1999-2019 BSI
-[*] Tue Jun 29 18:44:41 2021
+[*] Wed Jun 30 20:34:35 2021
 [*]
 [dumpfile] "\\wsl$\Ubuntu-20.04\home\nathan\fpga\sdr\tb\PacketizerSimpleMac\dump.fst"
-[dumpfile_mtime] "Tue Jun 29 18:21:50 2021"
-[dumpfile_size] 180410
+[dumpfile_mtime] "Wed Jun 30 19:22:39 2021"
+[dumpfile_size] 214276
 [savefile] "\\wsl$\Ubuntu-20.04\home\nathan\fpga\sdr\tb\PacketizerSimpleMac\PacketizerSimpleMac.gtkw"
-[timestart] 188033
+[timestart] 98633
 [size] 1920 1017
 [pos] -9 -9
-*-7.000000 45120 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-7.000000 142300 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] .
 [treeopen] .PacketizerSimpleMac.
 [treeopen] .PacketizerSimpleMac.mac0.
@@ -19,51 +19,94 @@
 [sst_expanded] 1
 [sst_vpaned_height] 301
 @28
+[color] 2
 PacketizerSimpleMac.clk_50
 PacketizerSimpleMac.rst
 @200
 -
 -Avalon-ST
 @28
+[color] 2
 PacketizerSimpleMac.tx_clk
 @22
 PacketizerSimpleMac.tx_data[7:0]
 @28
+[color] 2
 PacketizerSimpleMac.tx_rdy
 PacketizerSimpleMac.tx_wren
+[color] 2
 PacketizerSimpleMac.tx_sop
 PacketizerSimpleMac.tx_eop
+[color] 2
 PacketizerSimpleMac.tx_err
 PacketizerSimpleMac.tx_a_full
+[color] 2
 PacketizerSimpleMac.tx_a_empty
+@200
+-
+-Packetizer
+@22
+PacketizerSimpleMac.mac0.wr_ptr[11:0]
+[color] 2
+PacketizerSimpleMac.packetizer0.tx_word[15:0]
+PacketizerSimpleMac.packetizer0.wait_counter[7:0]
+@c00022
+[color] 2
+PacketizerSimpleMac.packetizer0.next_I[15:0]
+@28
+(0)PacketizerSimpleMac.packetizer0.next_I[15:0]
+(1)PacketizerSimpleMac.packetizer0.next_I[15:0]
+(2)PacketizerSimpleMac.packetizer0.next_I[15:0]
+(3)PacketizerSimpleMac.packetizer0.next_I[15:0]
+(4)PacketizerSimpleMac.packetizer0.next_I[15:0]
+(5)PacketizerSimpleMac.packetizer0.next_I[15:0]
+(6)PacketizerSimpleMac.packetizer0.next_I[15:0]
+(7)PacketizerSimpleMac.packetizer0.next_I[15:0]
+(8)PacketizerSimpleMac.packetizer0.next_I[15:0]
+(9)PacketizerSimpleMac.packetizer0.next_I[15:0]
+(10)PacketizerSimpleMac.packetizer0.next_I[15:0]
+(11)PacketizerSimpleMac.packetizer0.next_I[15:0]
+(12)PacketizerSimpleMac.packetizer0.next_I[15:0]
+(13)PacketizerSimpleMac.packetizer0.next_I[15:0]
+(14)PacketizerSimpleMac.packetizer0.next_I[15:0]
+(15)PacketizerSimpleMac.packetizer0.next_I[15:0]
+@1401200
+-group_end
+@22
+PacketizerSimpleMac.packetizer0.next_Q[15:0]
+@28
+[color] 2
+PacketizerSimpleMac.packetizer0.IQready
 @200
 -
 -MII
 @28
 PacketizerSimpleMac.eth_rstn
+[color] 2
 PacketizerSimpleMac.eth_txclk
 PacketizerSimpleMac.eth_txen
 @22
+[color] 2
 PacketizerSimpleMac.eth_txd[3:0]
-@200
--
--Packetizer
-@28
-PacketizerSimpleMac.packetizer0.clk
-PacketizerSimpleMac.packetizer0.rst
-@22
-PacketizerSimpleMac.packetizer0.tx_word[15:0]
-PacketizerSimpleMac.packetizer0.wait_counter[7:0]
 @200
 -
 -MAC
 @22
+PacketizerSimpleMac.mac0.rd_ptr[11:0]
+[color] 2
 PacketizerSimpleMac.mac0.fifo_count[11:0]
 PacketizerSimpleMac.mac0.packets_ready[3:0]
 @28
+[color] 2
 PacketizerSimpleMac.mac0.tx_state[1:0]
 @22
 PacketizerSimpleMac.mac0.tx_counter[15:0]
+[color] 2
 PacketizerSimpleMac.mac0.wait_counter[7:0]
+PacketizerSimpleMac.mac0.rd_fifo_data[9:0]
+@28
+[color] 2
+PacketizerSimpleMac.mac0.rd_sop
+PacketizerSimpleMac.mac0.rd_eop
 [pattern_trace] 1
 [pattern_trace] 0
