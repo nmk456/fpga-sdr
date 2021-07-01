@@ -91,7 +91,7 @@ FIFO memory format (10 bits wide): {tx_eop, tx_sop, tx_data[7:0]}
 
 #### Timing Diagram
 
-![SimpleMac Timing Diagram](.docs/SimpleMac_Timing.svg)
+![SimpleMac Timing Diagram](./docs/SimpleMac_Timing.svg)
 
 #### CRC32
 

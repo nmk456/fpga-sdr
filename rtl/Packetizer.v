@@ -57,7 +57,7 @@ module Packetizer (
     always @(posedge clk) begin
         if (rst) begin
             tx_word <= 0;
-            packet_counter <= 0;
+            // packet_counter <= 0;
 
             // Cancel current frame
             tx_err <= 1;
