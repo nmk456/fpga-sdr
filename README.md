@@ -55,6 +55,11 @@ DDR functionality relies on generated Intel IP, so a non-synthesizable equivalen
 
 ### Packetizer
 
+Constructs packets using data received from Deserializer to send over Ethernet. Send a UDP packet containing a 64 bit packet ID and 366 samples of IQ data. Each I and Q component is 13 bits, but is sent as a 16 bit value to align the words with bytes. Fitting 13/26 bit samples in without worrying about byte boundaries would allow ~450 samples to fit in a packet, but would no longer be compatible with GNU Radio. Truncating samples to 8/16 bits would allow 732 samples/packet, but obviously affect performance. Data rate calculations show that 2 transceivers at full sample rate and bit depth will produce ~270 Mbps, so full performance is not currently possible with the 10/100 PHY on the DECA. 
+
+TODO:
+* Implement UDP and IP checksums
+
 ### Depacketizer
 
 ### SimpleMac
