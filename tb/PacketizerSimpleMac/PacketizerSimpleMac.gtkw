@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.3.100 (w)1999-2019 BSI
-[*] Wed Jun 30 20:34:35 2021
+[*] Thu Jul 01 01:54:11 2021
 [*]
 [dumpfile] "\\wsl$\Ubuntu-20.04\home\nathan\fpga\sdr\tb\PacketizerSimpleMac\dump.fst"
-[dumpfile_mtime] "Wed Jun 30 19:22:39 2021"
-[dumpfile_size] 214276
+[dumpfile_mtime] "Thu Jul 01 01:53:18 2021"
+[dumpfile_size] 87223
 [savefile] "\\wsl$\Ubuntu-20.04\home\nathan\fpga\sdr\tb\PacketizerSimpleMac\PacketizerSimpleMac.gtkw"
-[timestart] 98633
+[timestart] 0
 [size] 1920 1017
 [pos] -9 -9
-*-7.000000 142300 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-6.000000 142300 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] .
 [treeopen] .PacketizerSimpleMac.
 [treeopen] .PacketizerSimpleMac.mac0.

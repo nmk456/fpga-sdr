@@ -55,14 +55,6 @@ module Packetizer (
     assign tx_clk = clk;
 
     always @(posedge clk) begin
-        // if (rd_en & rd_dr) begin
-        //     IQdata <= rd_data;
-        //     rd_en <= 0;
-        //     IQready <= 1;
-        // end else if (rd_dr & ~IQready) begin
-        //     rd_en <= 1;
-        // end
-
         if (rst) begin
             tx_word <= 0;
             packet_counter <= 0;
@@ -71,9 +63,6 @@ module Packetizer (
             tx_err <= 1;
             tx_eop <= 1;
         end else begin
-            // tx_err <= 0;
-            // tx_eop <= 0;
-            // tx_sop <= 0;
             rd_en <= 0;
 
             if (wait_counter > 0) begin
@@ -83,16 +72,9 @@ module Packetizer (
                 end else if (~tx_eop) begin
                     wait_counter <= wait_counter - 1;
                 end
-                // wait_counter <= wait_counter - 1;
-                // if (tx_rdy & tx_wren & tx_eop) begin
-                //     tx_wren <= 0;
-                // end
-                // tx_wren <= 0;
-            end else /*if (tx_rdy & (IQready | tx_word < 16'h0032) & ~tx_a_full)*/ begin
+            end else begin
                 tx_err <= 0;
                 tx_eop <= 0;
-                // tx_sop <= 0;
-                // tx_wren <= 1;
 
                 if (tx_rdy) begin
                     tx_wren <= 1;
@@ -106,8 +88,12 @@ module Packetizer (
                 case (tx_word)
                     16'h0000: begin
                         if (tx_rdy) begin
-                            // tx_wren <= 1;
                             tx_word <= tx_word + 1;
+                        end
+                        if (packet_counter == 64'b0) begin
+                            // This primes the IQdata at startup, reset, or once every 60 million years
+                            IQdata <= rd_data;
+                            rd_en <= 1;
                         end
                         tx_sop <= 1;
                         tx_data <= DEST_MAC[47:40];
@@ -116,47 +102,47 @@ module Packetizer (
                         tx_sop <= 0;
                         tx_data <= DEST_MAC[39:32];
                     end
-                    16'h0002: tx_data <= DEST_MAC[31:24];
+                    16'h0002: tx_data <= DEST_MAC[31:24];       // Destination MAC
                     16'h0003: tx_data <= DEST_MAC[23:16];
                     16'h0004: tx_data <= DEST_MAC[15:8];
                     16'h0005: tx_data <= DEST_MAC[7:0];
-                    16'h0006: tx_data <= SOURCE_MAC[47:40];
+                    16'h0006: tx_data <= SOURCE_MAC[47:40];     // Source MAC
                     16'h0007: tx_data <= SOURCE_MAC[39:32];
                     16'h0008: tx_data <= SOURCE_MAC[31:24];
                     16'h0009: tx_data <= SOURCE_MAC[23:16];
                     16'h000a: tx_data <= SOURCE_MAC[15:8];
                     16'h000b: tx_data <= SOURCE_MAC[7:0];
-                    16'h000c: tx_data <= 8'h08;
+                    16'h000c: tx_data <= 8'h08;                 // Ethertype
                     16'h000d: tx_data <= 8'h00;
-                    16'h000e: tx_data <= 8'h45;
-                    16'h000f: tx_data <= 8'h00;
-                    16'h0010: tx_data <= 8'h05;
+                    16'h000e: tx_data <= 8'h45;                 // IPv4
+                    16'h000f: tx_data <= 8'h00;                 // DSCP/ECN 
+                    16'h0010: tx_data <= 8'h05;                 // IP length
                     16'h0011: tx_data <= 8'hdc;
-                    16'h0012: tx_data <= packet_counter[15:8];
+                    16'h0012: tx_data <= packet_counter[15:8];  // Packet ID
                     16'h0013: tx_data <= packet_counter[7:0];
-                    16'h0014: tx_data <= 8'h00;
+                    16'h0014: tx_data <= 8'h00;                 // Fragment offset
                     16'h0015: tx_data <= 8'h00;
-                    16'h0016: tx_data <= 8'h40;
-                    16'h0017: tx_data <= 8'h11;
-                    16'h0018: tx_data <= ip_checksum[15:8];
+                    16'h0016: tx_data <= 8'h40;                 // TTL
+                    16'h0017: tx_data <= 8'h11;                 // Protocol: UDP
+                    16'h0018: tx_data <= ip_checksum[15:8];     // IP checksum
                     16'h0019: tx_data <= ip_checksum[7:0];
-                    16'h001a: tx_data <= SOURCE_IP[31:24];
+                    16'h001a: tx_data <= SOURCE_IP[31:24];      // Source IP
                     16'h001b: tx_data <= SOURCE_IP[23:16];
                     16'h001c: tx_data <= SOURCE_IP[15:8];
                     16'h001d: tx_data <= SOURCE_IP[7:0];
-                    16'h001e: tx_data <= DEST_IP[31:24];
+                    16'h001e: tx_data <= DEST_IP[31:24];        // Destination IP
                     16'h001f: tx_data <= DEST_IP[23:16];
                     16'h0020: tx_data <= DEST_IP[15:8];
                     16'h0021: tx_data <= DEST_IP[7:0];
-                    16'h0022: tx_data <= SOURCE_PORT[15:8];
+                    16'h0022: tx_data <= SOURCE_PORT[15:8];     // Source port
                     16'h0023: tx_data <= SOURCE_PORT[7:0];
-                    16'h0024: tx_data <= DEST_PORT[15:8];
+                    16'h0024: tx_data <= DEST_PORT[15:8];       // DEstination port
                     16'h0025: tx_data <= DEST_PORT[7:0];
-                    16'h0026: tx_data <= 8'h05;
+                    16'h0026: tx_data <= 8'h05;                 // UDP length
                     16'h0027: tx_data <= 8'hc8;
-                    16'h0028: tx_data <= udp_checksum[15:8];
+                    16'h0028: tx_data <= udp_checksum[15:8];    // UDP checksum
                     16'h0029: tx_data <= udp_checksum[7:0];
-                    16'h002a: tx_data <= packet_counter[7:0];
+                    16'h002a: tx_data <= packet_counter[7:0];   // Packet ID for GNU Radio
                     16'h002b: tx_data <= packet_counter[15:8];
                     16'h002c: tx_data <= packet_counter[23:16];
                     16'h002d: tx_data <= packet_counter[31:24];
@@ -165,14 +151,9 @@ module Packetizer (
                     16'h0030: tx_data <= packet_counter[55:48];
                     16'h0031: tx_data <= packet_counter[63:56];
                     default: begin
-                        // if (~IQready) begin
-                        //     tx_wren <= 0;
-                        // end
-
                         case (tx_word[1:0])
                             2'b10: begin
                                 tx_data <= next_I[7:0];
-                                // tx_wren <= 1;
                             end
                             2'b11: tx_data <= next_I[15:8];
                             2'b00: tx_data <= next_Q[7:0];
@@ -180,8 +161,6 @@ module Packetizer (
                                 tx_data <= next_Q[15:8];
                                 IQdata <= rd_data;
                                 rd_en <= 1;
-                                // IQready <= 0;
-                                // tx_wren <= 0;
                             end
                         endcase
                     end
@@ -195,9 +174,7 @@ module Packetizer (
                     end
                 endcase
                 end
-            end //else if (tx_rdy) begin
-                // tx_wren <= 0;
-            // end
+            end
         end
     end
 
