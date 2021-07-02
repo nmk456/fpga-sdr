@@ -64,9 +64,15 @@ TODO:
 
 ### SimpleMac
 
-Sends and receives packets over ethernet with Avalon-ST bus. Currently, only TX is implemented. Stores data in a 4096 entry deep FIFO, enough to store 2 packets. The MAC transmits the data packets received over the Avalon-ST bus, with the ethernet preamble added to the beginning and the FCS added to the end. The testbench transmits random data over the Avalon-ST bus and checks to see if the same data is sent over the MII interface. It also verifies the FCS that is inserted at the end of the packet.
+Sends and receives packets over ethernet with Avalon-ST bus. Currently, only TX is implemented. Stores data in a 4096 word deep FIFO, enough to store 2 packets. The MAC transmits the data packets received over the Avalon-ST bus, with the ethernet preamble added to the beginning and the FCS added to the end. The testbench transmits random data over the Avalon-ST bus and checks to see if the same data is sent over the MII interface. It also verifies the FCS that is inserted at the end of the packet.
+
+On the RX side, received packets are stored in FIFO with the preambled removed and the FCS verified and removed. If the FCS check fails, the final byte of the packet is stored in the FIFO with both the eop and sop signals high, which the FIFO read logic understands as an error and sends that byte over the Avalon-ST bus with the eop and err signals asserted, but not sop.
 
 FIFO memory format (10 bits wide): {tx_eop, tx_sop, tx_data[7:0]}
+
+TODO:
+* RX path
+    * RX FCS check and error handling
 
 #### Ports
 

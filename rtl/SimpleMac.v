@@ -24,9 +24,20 @@ module SimpleMac (
     input tx_wren,
 
     output tx_a_full,
-    output tx_a_empty
+    output tx_a_empty,
 
     // Receive interface - TODO
+    input rx_clk,
+    output[7:0] rx_data,
+    output rx_sop,
+    output rx_eop,
+    output rx_err,
+    input rx_rdy,
+    output rx_wren,
+
+    output rx_a_full,
+    output rx_a_empty,
+    output rx_empty
 );
 
     parameter ALMOST_FULL_THRESHOLD = 64;
@@ -37,102 +48,104 @@ module SimpleMac (
     // FIFO stores 8 data bits, sop, eop, and err signals
     // single entry = {eop, sop, data}, 10 bits wide
 
-    reg[11:0] rd_ptr = 0;
-    reg[11:0] wr_ptr = 0;
-    wire[11:0] fifo_count = wr_ptr - rd_ptr;
+    /* ========== TX ========== */
 
-    reg wr_en;
-    reg[9:0] wr_data;
-    wire[9:0] rd_fifo_data;
+    reg[11:0] tx_rd_ptr = 0;
+    reg[11:0] tx_wr_ptr = 0;
+    wire[11:0] tx_fifo_count = tx_wr_ptr - tx_rd_ptr;
 
-    SimpleMacFifo fifo0 (
+    reg tx_wr_en;
+    reg[9:0] tx_wr_data;
+    wire[9:0] tx_rd_fifo_data;
+
+    SimpleMacFifo tx_fifo (
         // Write
-        .data(wr_data),
-        .write_addr(wr_ptr),
-        .we(wr_en),
+        .data(tx_wr_data),
+        .write_addr(tx_wr_ptr),
+        .we(tx_wr_en),
         .write_clock(tx_clk),
 
         // Read
-        .q(rd_fifo_data),
-        .read_addr(rd_ptr),
+        .q(tx_rd_fifo_data),
+        .read_addr(tx_rd_ptr),
         .read_clock(eth_txclk)
     );
 
     /* verilator lint_off WIDTH */
-    assign tx_a_full = fifo_count > 4096 - ALMOST_FULL_THRESHOLD;
-    assign tx_a_empty = fifo_count < ALMOST_EMPTY_THRESHOLD;
-    assign tx_rdy = ~tx_a_full & ~rst_int & ~rst;
+    assign tx_a_full = tx_fifo_count > 4096 - ALMOST_FULL_THRESHOLD;
+    assign tx_a_empty = tx_fifo_count < ALMOST_EMPTY_THRESHOLD;
+    assign tx_rdy = ~tx_a_full & ~tx_rst_int & ~rst;
     /* verilator lint_on WIDTH */
 
-    reg[3:0] packets_ready = 0; // Number of complete packets in FIFO
-    reg finished_packet = 0;
-    reg finished_packet_ack = 0;
-    reg rst_int = 0;
-    reg rst_ack = 0;
+    reg[3:0] tx_packets_ready = 0; // Number of complete packets in FIFO
+    reg tx_finished_packet = 0;
+    reg tx_finished_packet_ack = 0;
+    reg tx_rst_int = 0;
+    reg tx_rst_ack = 0;
 
-    // Write logic
+    // TX FIFO write logic
 
     always @(posedge tx_clk) begin
-        wr_en <= 0;
+        tx_wr_en <= 0;
 
-        if (finished_packet & ~finished_packet_ack) begin
-            finished_packet_ack <= 1;
-            packets_ready <= packets_ready - 1;
-        end else if (~finished_packet) begin
-            finished_packet_ack <= 0;
+        if (tx_finished_packet & ~tx_finished_packet_ack) begin
+            tx_finished_packet_ack <= 1;
+            tx_packets_ready <= tx_packets_ready - 1;
+        end else if (~tx_finished_packet) begin
+            tx_finished_packet_ack <= 0;
         end
 
-        if (rst | rst_int) begin
-            if (~rst_int) begin
-                rst_int <= 1;
-            end else if (rst_ack) begin
-                rst_int <= 0;
+        if (rst | tx_rst_int) begin
+            if (~tx_rst_int) begin
+                tx_rst_int <= 1;
+            end else if (tx_rst_ack) begin
+                tx_rst_int <= 0;
             end
-            wr_ptr <= 0;
-            wr_en <= 0;
-            wr_data <= 0;
-            packets_ready <= 0;
+            tx_wr_ptr <= 0;
+            tx_wr_en <= 0;
+            tx_wr_data <= 0;
+            tx_packets_ready <= 0;
         end else if (tx_wren & tx_rdy) begin
-            wr_data <= {tx_eop, tx_sop, tx_data};
-            wr_en <= 1;
-            wr_ptr <= wr_ptr + 1;
+            tx_wr_data <= {tx_eop, tx_sop, tx_data};
+            tx_wr_en <= 1;
+            tx_wr_ptr <= tx_wr_ptr + 1;
 
             if (tx_eop) begin
-                packets_ready <= packets_ready + 1;
+                tx_packets_ready <= tx_packets_ready + 1;
             end
         end
     end
 
-    // Read logic
+    // TX FIFO read logic
 
     localparam STATE_IDLE = 2'b00;
     localparam STATE_PREAMBLE = 2'b01;
     localparam STATE_DATA = 2'b10;
     localparam STATE_CRC = 2'b11;
 
-    reg[1:0] tx_state;
+    reg[1:0] tx_state = STATE_IDLE;
 
-    wire[7:0] rd_data = rd_fifo_data[7:0];
-    wire rd_sop = rd_fifo_data[8];
-    wire rd_eop = rd_fifo_data[9];
+    wire[7:0] tx_rd_data = tx_rd_fifo_data[7:0];
+    wire tx_rd_sop = tx_rd_fifo_data[8];
+    wire tx_rd_eop = tx_rd_fifo_data[9];
 
-    reg crc_en = 0;
-    reg crc_init = 0;
-    wire crc_rst = crc_init | rst_int;
-    wire[31:0] crc_out;
+    reg tx_crc_en = 0;
+    reg tx_crc_init = 0;
+    wire tx_crc_rst = tx_crc_init | tx_rst_int;
+    wire[31:0] tx_crc_out;
 
     reg[15:0] tx_counter = 0; // Position within packet, increments after every half byte
-    reg[7:0] wait_counter = 0;
-    reg[2:0] crc_counter = 0;
+    reg[7:0] tx_wait_counter = 0;
+    reg[2:0] tx_crc_counter = 0;
 
-    assign eth_rstn = ~rst_int;
+    assign eth_rstn = ~tx_rst_int;
 
-    CRC32 crc32 (
+    CRC32 tx_crc32 (
         .clk(eth_txclk),
-        .rst(crc_rst),
-        .data_in(rd_data),
-        .data_valid(crc_en),
-        .crc_out(crc_out)
+        .rst(tx_crc_rst),
+        .data_in(tx_rd_data),
+        .data_valid(tx_crc_en),
+        .crc_out(tx_crc_out)
     );
 
     always @(*) begin
@@ -153,9 +166,9 @@ module SimpleMac (
                 eth_txen = 1'b1;
 
                 if (tx_counter[0]) begin
-                    eth_txd = rd_data[7:4];
+                    eth_txd = tx_rd_data[7:4];
                 end else begin
-                    eth_txd = rd_data[3:0];
+                    eth_txd = tx_rd_data[3:0];
                 end
             end
 
@@ -163,16 +176,12 @@ module SimpleMac (
             STATE_CRC: begin
                 eth_txen = 1'b1;
 
-                case (crc_counter)
-                    3'b000: eth_txd = crc_out[3:0];
-                    3'b001: eth_txd = crc_out[7:4];
-                    3'b010: eth_txd = crc_out[11:8];
-                    3'b011: eth_txd = crc_out[15:12];
-                    3'b100: eth_txd = crc_out[19:16];
-                    3'b101: eth_txd = crc_out[23:20];
-                    3'b110: eth_txd = crc_out[27:24];
-                    3'b111: eth_txd = crc_out[31:28];
-                endcase
+                eth_txd = {
+                    tx_crc_out[4*tx_crc_counter + 3],
+                    tx_crc_out[4*tx_crc_counter + 2],
+                    tx_crc_out[4*tx_crc_counter + 1],
+                    tx_crc_out[4*tx_crc_counter + 0]
+                };
             end
 
             // Idle
@@ -184,34 +193,34 @@ module SimpleMac (
     end
 
     always @(posedge eth_txclk) begin
-        if (rst_int) begin
-            rst_ack <= 1;
-            rd_ptr <= 0;
+        if (tx_rst_int) begin
+            tx_rst_ack <= 1;
+            tx_rd_ptr <= 0;
             tx_state <= STATE_IDLE;
             tx_counter <= 0;
-            wait_counter <= 64;
+            tx_wait_counter <= 64;
         end else begin
-            rst_ack <= 0;
+            tx_rst_ack <= 0;
             tx_counter <= tx_counter + 1;
 
-            if (finished_packet_ack) begin
-                finished_packet <= 0;
+            if (tx_finished_packet_ack) begin
+                tx_finished_packet <= 0;
             end
 
             case (tx_state)
                 STATE_IDLE: begin
-                    if (wait_counter > 0) begin
-                        wait_counter <= wait_counter - 1;
-                        crc_init = 1;
-                    end else if (packets_ready > 0) begin
+                    if (tx_wait_counter > 0) begin
+                        tx_wait_counter <= tx_wait_counter - 1;
+                        tx_crc_init = 1;
+                    end else if (tx_packets_ready > 0) begin
                         tx_counter <= 0;
-                        crc_init = 0;
+                        tx_crc_init = 0;
 
-                        if (rd_sop) begin
+                        if (tx_rd_sop) begin
                             tx_state <= STATE_PREAMBLE;
                         end else begin
-                            rd_ptr <= rd_ptr + 1;
-                            wait_counter <= 2; // This gives the fifo a cycle to work
+                            tx_rd_ptr <= tx_rd_ptr + 1;
+                            tx_wait_counter <= 2; // This gives the fifo a cycle to work
                         end
                     end
                 end
@@ -219,39 +228,108 @@ module SimpleMac (
                 STATE_PREAMBLE: begin
                     if (tx_counter == 16'hf) begin
                         tx_state <= STATE_DATA;
-                        crc_en <= 1;
+                        tx_crc_en <= 1;
                     end
                 end
 
                 STATE_DATA: begin
                     if (tx_counter[0]) begin
-                        crc_en <= 1; // Calculate CRC on every other cycle
+                        tx_crc_en <= 1; // Calculate CRC on every other cycle
 
                         // End transmission
-                        if (rd_eop) begin
+                        if (tx_rd_eop) begin
                             tx_state <= STATE_CRC;
-                            crc_en <= 0;
+                            tx_crc_en <= 0;
                         end
                     end else begin
-                        if (~rd_eop) begin
-                            rd_ptr <= rd_ptr + 1; // Increment read pointer
+                        if (~tx_rd_eop) begin
+                            tx_rd_ptr <= tx_rd_ptr + 1; // Increment read pointer
                         end
 
-                        crc_en <= 0;
+                        tx_crc_en <= 0;
                     end
                 end
 
                 STATE_CRC: begin
-                    crc_counter <= crc_counter + 1;
+                    tx_crc_counter <= tx_crc_counter + 1;
 
-                    if (crc_counter == 3'h7) begin
+                    if (tx_crc_counter == 3'h7) begin
                         tx_state <= STATE_IDLE;
-                        wait_counter <= WAIT_LEN;
-                        finished_packet <= 1;
+                        tx_wait_counter <= WAIT_LEN;
+                        tx_finished_packet <= 1;
                     end
                 end
             endcase
         end
     end
+
+    /* ========== RX ========== */
+
+    reg[11:0] rx_rd_ptr = 0;
+    reg[11:0] rx_wr_ptr = 0;
+    wire[11:0] rx_fifo_count = rx_wr_ptr - rx_rd_ptr;
+
+    reg rx_wr_en;
+    reg[9:0] rx_wr_data;
+    wire[9:0] rx_rd_fifo_data;
+
+    SimpleMacFifo rx_fifo (
+        // Write
+        .data(),
+        .write_addr(rx_wr_ptr),
+        .we(rx_wr_en),
+        .write_clock(eth_rxclk),
+
+        // Read
+        .q(rx_rd_fifo_data),
+        .read_addr(rx_rd_ptr),
+        .read_clock(rx_clk)
+    );
+
+    /* verilator lint_off WIDTH */
+    assign rx_a_full = rx_fifo_count > 4096 - ALMOST_FULL_THRESHOLD;
+    assign rx_a_empty = rx_fifo_count < ALMOST_EMPTY_THRESHOLD;
+    assign rx_empty = rx_fifo_count == 0;
+    // assign rx_rdy = ~tx_a_full & ~tx_rst_int & ~rst;
+    /* verilator lint_on WIDTH */
+
+    reg[3:0] rx_packets_ready = 0; // Number of complete packets in FIFO
+    // reg rx_finished_packet = 0;
+    // reg rx_finished_packet_ack = 0;
+    // reg rx_rst_int = 0;
+    // reg rx_rst_ack = 0;
+
+    // RX FIFO write logic
+
+    reg[1:0] rx_state = STATE_IDLE;
+
+    always @(posedge eth_rxclk or posedge rst) begin
+        rx_wr_en <= 0;
+
+        if (rst) begin
+            rx_rst_ack <= 1;
+            rx_wr_ptr <= 0;
+        end else begin
+            case (rx_state)
+                STATE_IDLE: begin
+                    if (eth_rxdv)
+                end
+
+                STATE_PREAMBLE: begin
+                    
+                end
+
+                STATE_DATA: begin
+                    
+                end
+
+                STATE_CRC: begin
+                    
+                end
+            endcase
+        end
+    end
+
+    // RX FIFO read logic
 
 endmodule

@@ -1,20 +1,19 @@
 [*]
 [*] GTKWave Analyzer v3.3.100 (w)1999-2019 BSI
-[*] Tue Jun 29 03:47:20 2021
+[*] Sat Jul 03 00:54:21 2021
 [*]
 [dumpfile] "\\wsl$\Ubuntu-20.04\home\nathan\fpga\sdr\tb\SimpleMac\dump.fst"
-[dumpfile_mtime] "Tue Jun 29 03:45:23 2021"
-[dumpfile_size] 32265
+[dumpfile_mtime] "Fri Jul 02 18:50:19 2021"
+[dumpfile_size] 50736
 [savefile] "\\wsl$\Ubuntu-20.04\home\nathan\fpga\sdr\tb\SimpleMac\SimpleMac.gtkw"
-[timestart] 6873
+[timestart] 0
 [size] 1920 1017
 [pos] -9 -9
-*-7.000000 1294 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-9.000000 1294 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] .
 [treeopen] .SimpleMac.
-[treeopen] .SimpleMac.crc32.
 [sst_width] 211
-[signals_width] 174
+[signals_width] 222
 [sst_expanded] 1
 [sst_vpaned_height] 301
 @200
@@ -34,11 +33,6 @@ tx_a_full
 tx_a_empty
 @200
 -FIFO
-@22
-SimpleMac.packets_ready[3:0]
-@23
-SimpleMac.wr_data[9:0]
-@200
 -MII
 @28
 eth_txclk
@@ -51,72 +45,18 @@ eth_crs
 eth_pcf
 eth_rstn
 eth_rxclk
+eth_rxdv
 @22
 eth_rxd[3:0]
 @28
-eth_rxdv
 eth_rxer
 @200
 -Internal
 @28
-SimpleMac.rst_ack
-SimpleMac.rst_int
 SimpleMac.tx_state[1:0]
-@22
-SimpleMac.wr_ptr[11:0]
-SimpleMac.rd_ptr[11:0]
-SimpleMac.rd_fifo_data[9:0]
-SimpleMac.rd_data[7:0]
-@28
-SimpleMac.rd_sop
-SimpleMac.rd_eop
 @200
 -CRC
 @22
-SimpleMac.crc32.data_in[7:0]
-@28
-SimpleMac.crc32.data_valid
-@22
-SimpleMac.crc32.crc_out[31:0]
-SimpleMac.crc32.crc_q[31:0]
-@c00022
-SimpleMac.crc32.crc_c[31:0]
-@28
-(0)SimpleMac.crc32.crc_c[31:0]
-(1)SimpleMac.crc32.crc_c[31:0]
-(2)SimpleMac.crc32.crc_c[31:0]
-(3)SimpleMac.crc32.crc_c[31:0]
-(4)SimpleMac.crc32.crc_c[31:0]
-(5)SimpleMac.crc32.crc_c[31:0]
-(6)SimpleMac.crc32.crc_c[31:0]
-(7)SimpleMac.crc32.crc_c[31:0]
-(8)SimpleMac.crc32.crc_c[31:0]
-(9)SimpleMac.crc32.crc_c[31:0]
-(10)SimpleMac.crc32.crc_c[31:0]
-(11)SimpleMac.crc32.crc_c[31:0]
-(12)SimpleMac.crc32.crc_c[31:0]
-(13)SimpleMac.crc32.crc_c[31:0]
-(14)SimpleMac.crc32.crc_c[31:0]
-(15)SimpleMac.crc32.crc_c[31:0]
-(16)SimpleMac.crc32.crc_c[31:0]
-(17)SimpleMac.crc32.crc_c[31:0]
-(18)SimpleMac.crc32.crc_c[31:0]
-(19)SimpleMac.crc32.crc_c[31:0]
-(20)SimpleMac.crc32.crc_c[31:0]
-(21)SimpleMac.crc32.crc_c[31:0]
-(22)SimpleMac.crc32.crc_c[31:0]
-(23)SimpleMac.crc32.crc_c[31:0]
-(24)SimpleMac.crc32.crc_c[31:0]
-(25)SimpleMac.crc32.crc_c[31:0]
-(26)SimpleMac.crc32.crc_c[31:0]
-(27)SimpleMac.crc32.crc_c[31:0]
-(28)SimpleMac.crc32.crc_c[31:0]
-(29)SimpleMac.crc32.crc_c[31:0]
-(30)SimpleMac.crc32.crc_c[31:0]
-(31)SimpleMac.crc32.crc_c[31:0]
-@1401200
--group_end
-@28
-SimpleMac.crc32.rst
+SimpleMac.tx_crc32.crc_c[31:0]
 [pattern_trace] 1
 [pattern_trace] 0

@@ -3,7 +3,7 @@ from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge, FallingEdge, Edge, Timer
 from cocotb.binary import BinaryValue
 from cocotb_bus.drivers.avalon import AvalonSTPkts
-from cocotbext.eth import MiiSink
+from cocotbext.eth import MiiSink, MiiSource, GmiiFrame
 
 import random
 import numpy as np
@@ -51,15 +51,17 @@ async def send_avalonst(dut, data):
 async def sequential_data_test(dut):
     PACKETS = 16
     # PACKETS = 1
-    PACKET_LEN = 1518
-    # PACKET_LEN = 64
+    # PACKET_LEN = 1518
+    PACKET_LEN = 64
 
     dut._log.info("Running test")
 
     cocotb.fork(Clock(dut.tx_clk, 20, units="ns").start())
     cocotb.fork(Clock(dut.eth_txclk, 40, units="ns").start())
+    cocotb.fork(Clock(dut.eth_rxclk, 40, units="ns").start())
 
     mii_sink = MiiSink(dut.eth_txd, None, dut.eth_txen, dut.eth_txclk)
+    mii_source = MiiSource(dut.eth_rxd, dut.eth_rxer, dut.eth_rxdv, dut.eth_rxclk)
 
     dut.rst <= 1
 
@@ -71,13 +73,16 @@ async def sequential_data_test(dut):
 
     for i in range(PACKETS):
         test_data = list(randbytes(PACKET_LEN))
-        test_data_hex = [hex(b)[2:] for b in test_data]
         test_crc = struct.pack('<L', zlib.crc32(bytearray(test_data))).hex()
 
         if len(test_crc) == 7:
             test_crc = "0" + test_crc
 
         cocotb.fork(send_avalonst(dut, test_data))
+
+        dut._log.info(f"Sending packet {i}")
+
+        mii_source.send_nowait(GmiiFrame.from_payload(test_data))
 
         result_data = await mii_sink.recv()
         result_payload = result_data.get_payload()
