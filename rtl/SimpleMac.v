@@ -307,12 +307,12 @@ module SimpleMac (
         rx_wr_en <= 0;
 
         if (rst) begin
-            rx_rst_ack <= 1;
-            rx_wr_ptr <= 0;
+            // rx_rst_ack <= 1;
+            // rx_wr_ptr <= 0;
         end else begin
             case (rx_state)
                 STATE_IDLE: begin
-                    if (eth_rxdv)
+                    // if (eth_rxdv)
                 end
 
                 STATE_PREAMBLE: begin
