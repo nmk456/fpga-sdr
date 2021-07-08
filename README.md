@@ -10,7 +10,7 @@ Individual modules have more detailed readme files, but in summary, this project
 | Deserializer | In progress | In progress | N/A |
 | Packetizer | In progress | In progress | N/A |
 | Depacketizer | Not started | Not started | N/A |
-| SimpleMac | TX Functional | TX Functional | Passing |
+| SimpleMac | Functional | Functional | Passing |
 | DataController | In progress | In progress | N/A |
 
 ## Modules
@@ -66,13 +66,12 @@ TODO:
 
 Sends and receives packets over ethernet with Avalon-ST bus. Currently, only TX is implemented. Stores data in a 4096 word deep FIFO, enough to store 2 packets. The MAC transmits the data packets received over the Avalon-ST bus, with the ethernet preamble added to the beginning and the FCS added to the end. The testbench transmits random data over the Avalon-ST bus and checks to see if the same data is sent over the MII interface. It also verifies the FCS that is inserted at the end of the packet.
 
-On the RX side, received packets are stored in FIFO with the preambled removed and the FCS verified and removed. If the FCS check fails, the final byte of the packet is stored in the FIFO with both the eop and sop signals high, which the FIFO read logic understands as an error and sends that byte over the Avalon-ST bus with the eop and err signals asserted, but not sop.
+When preamble is detected on eth_rxd, STATE_DATA is entered. Data is written first to a 4 byte buffer, one nibble at a time. Every cycle, the contents are shifted down 4 bits and the newest nibble is written to the top. On every cycle, the bottom 4 bits are sent to the CRC module and on alternating cycles, the bottom byte are written to the FIFO. When eth_rxdv is deasserted, STATE_CRC is entered, the 4 byte buffer now contains the FCS of the packet. It's compared to the result from the CRC32 module, and if they're the same, the final byte of the packet is written with tlast asserted. Then, the FIFO write signals are set to default, rx_packets_ready is incremented and STATE_IDLE is entered. If the FCS does not match, the only difference is rx_packets_ready is not incremented and rx_wr_ptr is reset to the start of the current packet.
 
-FIFO memory format (10 bits wide): {tx_eop, tx_sop, tx_data[7:0]}
+FIFO memory format (10 bits wide): {tuser, tlast, tdata[7:0]}
 
 TODO:
-* RX path
-    * RX FCS check and error handling
+* RX and TX error handling
 
 #### Ports
 

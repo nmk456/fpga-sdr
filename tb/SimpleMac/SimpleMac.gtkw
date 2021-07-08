@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.3.100 (w)1999-2019 BSI
-[*] Sat Jul 03 00:54:21 2021
+[*] Thu Jul 08 01:21:29 2021
 [*]
 [dumpfile] "\\wsl$\Ubuntu-20.04\home\nathan\fpga\sdr\tb\SimpleMac\dump.fst"
-[dumpfile_mtime] "Fri Jul 02 18:50:19 2021"
-[dumpfile_size] 50736
+[dumpfile_mtime] "Thu Jul 08 01:20:16 2021"
+[dumpfile_size] 7315
 [savefile] "\\wsl$\Ubuntu-20.04\home\nathan\fpga\sdr\tb\SimpleMac\SimpleMac.gtkw"
-[timestart] 0
+[timestart] 5662
 [size] 1920 1017
 [pos] -9 -9
-*-9.000000 1294 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-7.000000 6590 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] .
 [treeopen] .SimpleMac.
 [sst_width] 211
@@ -17,22 +17,25 @@
 [sst_expanded] 1
 [sst_vpaned_height] 301
 @200
--Avalon-ST TX
+-Transmit
+-AXI-S
 @28
 rst
 tx_clk
 @22
-tx_data[7:0]
+SimpleMac.tx_tdata[7:0]
 @28
-tx_rdy
-tx_wren
-tx_sop
-tx_eop
-tx_err
+SimpleMac.tx_tready
+SimpleMac.tx_tvalid
+SimpleMac.tx_tlast
+SimpleMac.tx_tuser
 tx_a_full
 tx_a_empty
 @200
 -FIFO
+@22
+SimpleMac.tx_fifo_count[11:0]
+@200
 -MII
 @28
 eth_txclk
@@ -40,23 +43,61 @@ eth_txen
 @22
 eth_txd[3:0]
 @28
-eth_col
-eth_crs
-eth_pcf
 eth_rstn
-eth_rxclk
-eth_rxdv
-@22
-eth_rxd[3:0]
-@28
-eth_rxer
 @200
 -Internal
 @28
 SimpleMac.tx_state[1:0]
 @200
 -CRC
+@28
+SimpleMac.tx_crc_rst
 @22
 SimpleMac.tx_crc32.crc_c[31:0]
+@28
+SimpleMac.tx_crc_en
+@200
+-
+-Receive
+-AXI-S
+@28
+SimpleMac.rx_clk
+@22
+SimpleMac.rx_tdata[7:0]
+@28
+SimpleMac.rx_tready
+SimpleMac.rx_tvalid
+SimpleMac.rx_tlast
+SimpleMac.rx_tuser
+SimpleMac.rx_a_full
+SimpleMac.rx_a_empty
+SimpleMac.rx_empty
+@200
+-FIFO
+@22
+SimpleMac.rx_rd_ptr[11:0]
+@23
+SimpleMac.rx_fifo_count[11:0]
+@22
+SimpleMac.rx_counter[15:0]
+@28
+SimpleMac.rx_state[1:0]
+@22
+SimpleMac.rx_wr_ptr[11:0]
+SimpleMac.rx_wr_data[8:0]
+@28
+SimpleMac.rx_wr_en
+@22
+SimpleMac.rx_shift_buffer[31:0]
+SimpleMac.rx_crc_out[31:0]
+@200
+-MII
+@28
+eth_rxclk
+eth_rxdv
+@22
+eth_rxd[3:0]
+@28
+eth_rxer
 [pattern_trace] 1
 [pattern_trace] 0
