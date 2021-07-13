@@ -43,18 +43,18 @@ def get_data_crc(n):
 
 
 class TB(object):
-    def __init__(self, dut):
+    def __init__(self, dut, axi_period, mii_period):
         self.dut = dut
         self.log = dut._log
 
         cocotb.fork(
-            Clock(self.dut.tx_clk, AXI_CLOCK_PERIOD_NS, units="ns").start())
+            Clock(self.dut.tx_clk, axi_period, units="ns").start())
         cocotb.fork(
-            Clock(self.dut.rx_clk, AXI_CLOCK_PERIOD_NS, units="ns").start())
+            Clock(self.dut.rx_clk, axi_period, units="ns").start())
         cocotb.fork(
-            Clock(self.dut.eth_txclk, MII_CLOCK_PERIOD_NS, units="ns").start())
+            Clock(self.dut.eth_txclk, mii_period, units="ns").start())
         cocotb.fork(
-            Clock(self.dut.eth_rxclk, MII_CLOCK_PERIOD_NS, units="ns").start())
+            Clock(self.dut.eth_rxclk, mii_period, units="ns").start())
 
         # Tx_Mii receives data from TX interface
         self.Tx_Mii = eth.MiiSink(
@@ -73,7 +73,7 @@ class TB(object):
     async def tx_mii_recv(self) -> eth.GmiiFrame:
         result = await self.Tx_Mii.recv()
         return result
-    
+
     def tx_axi_send(self, data, tuser=None):
         if type(data) == axi.AxiStreamFrame:
             self.Tx_Axi.send_nowait(data)
@@ -105,43 +105,47 @@ class TB(object):
         await RisingEdge(self.dut.eth_txclk)
 
 
+# Sends packets over AXI and checks them against received packets from MII
 @cocotb.test()
 async def tx_test(dut):
-    tb = TB(dut)
-
+    tb = TB(dut, AXI_CLOCK_PERIOD_NS, MII_CLOCK_PERIOD_NS)
     tb.log.info("Running TX test")
-
     await tb.cycle_reset()
 
     for i in range(PACKETS):
         dut._log.info(f"Sending packet {i}")
 
         test_data, test_crc = get_data_crc(PACKET_LEN)
+        tuser = [0]*len(test_data)
+        tuser[-1] = 1  # Mark final byte as error
 
         tb.tx_axi_send(test_data)
+        tb.tx_axi_send(test_data[::-1], tuser=tuser)
 
         result_data = await tb.tx_mii_recv()
 
-        assert bytearray(test_data) == result_data.get_payload(), "Packet payload does not match"
+        assert bytearray(test_data) == result_data.get_payload(
+        ), "Packet payload does not match"
         assert result_data.check_fcs(), "Packet FCS is not valid"
 
     dut._log.info("Done TX test")
 
+
+# Sends packets over MII and checks them against received packets from AXI
 @cocotb.test()
 async def rx_test(dut):
-    tb = TB(dut)
-
+    tb = TB(dut, AXI_CLOCK_PERIOD_NS, MII_CLOCK_PERIOD_NS)
     tb.log.info("Running RX test")
-
     await tb.cycle_reset()
 
     for i in range(PACKETS):
         dut._log.info(f"Sending packet {i}")
 
         test_data, test_crc = get_data_crc(PACKET_LEN)
-
         tb.rx_mii_send(GmiiFrame.from_payload(test_data))
-
         result_data = await tb.rx_axi_recv()
 
-        assert bytearray(test_data) == result_data.tdata, f"{bytearray(test_data).hex()} != {result_data.tdata.hex()}"
+        assert bytearray(
+            test_data) == result_data.tdata, f"{bytearray(test_data).hex()} != {result_data.tdata.hex()}"
+        assert result_data.tuser == 0 or any(
+            result_data.tuser) == False, "Packet error"

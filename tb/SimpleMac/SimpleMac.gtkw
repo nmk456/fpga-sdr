@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.3.100 (w)1999-2019 BSI
-[*] Thu Jul 08 01:21:29 2021
+[*] Mon Jul 12 21:20:44 2021
 [*]
 [dumpfile] "\\wsl$\Ubuntu-20.04\home\nathan\fpga\sdr\tb\SimpleMac\dump.fst"
-[dumpfile_mtime] "Thu Jul 08 01:20:16 2021"
-[dumpfile_size] 7315
+[dumpfile_mtime] "Tue Jul 13 01:20:27 2021"
+[dumpfile_size] 9912
 [savefile] "\\wsl$\Ubuntu-20.04\home\nathan\fpga\sdr\tb\SimpleMac\SimpleMac.gtkw"
-[timestart] 5662
+[timestart] 0
 [size] 1920 1017
 [pos] -9 -9
-*-7.000000 6590 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-12.000000 2724 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] .
 [treeopen] .SimpleMac.
 [sst_width] 211
@@ -35,6 +35,12 @@ tx_a_empty
 -FIFO
 @22
 SimpleMac.tx_fifo_count[11:0]
+@28
+SimpleMac.tx_wr_en
+@22
+SimpleMac.tx_wr_ptr[11:0]
+SimpleMac.tx_wr_ptr_start[11:0]
+SimpleMac.tx_rd_ptr[11:0]
 @200
 -MII
 @28
@@ -46,9 +52,6 @@ eth_txd[3:0]
 eth_rstn
 @200
 -Internal
-@28
-SimpleMac.tx_state[1:0]
-@200
 -CRC
 @28
 SimpleMac.tx_crc_rst
@@ -75,21 +78,30 @@ SimpleMac.rx_empty
 @200
 -FIFO
 @22
-SimpleMac.rx_rd_ptr[11:0]
-@23
-SimpleMac.rx_fifo_count[11:0]
-@22
 SimpleMac.rx_counter[15:0]
+@c00022
+SimpleMac.rx_wr_data[9:0]
 @28
-SimpleMac.rx_state[1:0]
-@22
-SimpleMac.rx_wr_ptr[11:0]
-SimpleMac.rx_wr_data[8:0]
+(0)SimpleMac.rx_wr_data[9:0]
+(1)SimpleMac.rx_wr_data[9:0]
+(2)SimpleMac.rx_wr_data[9:0]
+(3)SimpleMac.rx_wr_data[9:0]
+(4)SimpleMac.rx_wr_data[9:0]
+(5)SimpleMac.rx_wr_data[9:0]
+(6)SimpleMac.rx_wr_data[9:0]
+(7)SimpleMac.rx_wr_data[9:0]
+(8)SimpleMac.rx_wr_data[9:0]
+(9)SimpleMac.rx_wr_data[9:0]
+@1401200
+-group_end
 @28
 SimpleMac.rx_wr_en
+SimpleMac.rx_state[2:0]
 @22
-SimpleMac.rx_shift_buffer[31:0]
-SimpleMac.rx_crc_out[31:0]
+SimpleMac.rx_wr_ptr[3:0]
+SimpleMac.rx_rd_ptr[3:0]
+@23
+SimpleMac.rx_rd_fifo_data[9:0]
 @200
 -MII
 @28

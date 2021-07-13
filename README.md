@@ -73,6 +73,17 @@ FIFO memory format (10 bits wide): {tuser, tlast, tdata[7:0]}
 TODO:
 * RX and TX error handling
 
+Edge Cases
+
+| Case | Status | Notes |
+| --- | --- | --- |
+| TX Overflow | Done | Back pressure on AXIS bus prevents overflow |
+| TX Underflow | Done | Transmission does not start until entire packet is in FIFO |
+| TX Error | Done | Error is signaled with `tuser` signal and FIFO write pointer is reset to start of packet |
+| RX Overflow | Done | `tuser` and `tlast` signals are asserted and rest of packet is dropped |
+| RX Underflow | Done | `tvalid` is not asserted unless data is in FIFO |
+| RX Error | Done | Can be safely ignored, error will cause CRC to be invalid anyway |
+
 #### Ports
 
 | Name | Direction | Description |

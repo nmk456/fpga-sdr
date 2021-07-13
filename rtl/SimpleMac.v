@@ -45,14 +45,11 @@ module SimpleMac (
     parameter TX_FIFO_ADDR_WIDTH = 12;
     parameter RX_FIFO_ADDR_WIDTH = 12;
 
-    // 2048 byte deep FIFO
-    // FIFO stores 8 data bits, sop, eop, and err signals
-    // single entry = {tlast, tdata}, 10 bits wide
-
     /* ========== TX ========== */
 
     reg[TX_FIFO_ADDR_WIDTH-1:0] tx_rd_ptr = 0;
     reg[TX_FIFO_ADDR_WIDTH-1:0] tx_wr_ptr = 0;
+    reg[TX_FIFO_ADDR_WIDTH-1:0] tx_wr_ptr_start = 0;
     wire[TX_FIFO_ADDR_WIDTH-1:0] tx_fifo_count = tx_wr_ptr - tx_rd_ptr;
 
     reg tx_wr_en;
@@ -90,6 +87,7 @@ module SimpleMac (
     always @(posedge tx_clk or posedge rst) begin
         if (rst) begin
             tx_wr_ptr <= 0;
+            tx_wr_ptr_start <= 0;
             tx_wr_en <= 0;
             tx_wr_data <= 0;
             tx_packets_ready <= 0;
@@ -108,7 +106,7 @@ module SimpleMac (
                 tx_wr_en <= 1;
                 tx_wr_ptr <= tx_wr_ptr + 1;
 
-                if (tx_tlast) begin
+                if (tx_tlast & ~tx_tuser) begin
                     // Handle increase and decrease on same cycle
                     if (tx_finished_packet & ~tx_finished_packet_ack) begin
                         tx_finished_packet_ack <= 1;
@@ -116,6 +114,11 @@ module SimpleMac (
                     end else begin
                         tx_packets_ready <= tx_packets_ready + 1;
                     end
+
+                    tx_wr_ptr_start <= tx_wr_ptr + 1;
+                end else if (tx_tuser) begin
+                    tx_wr_ptr <= tx_wr_ptr_start;
+                    tx_wr_en <= 0;
                 end
             end
         end
@@ -123,12 +126,13 @@ module SimpleMac (
 
     // TX FIFO read logic
 
-    localparam STATE_IDLE = 2'b00;
-    localparam STATE_PREAMBLE = 2'b01;
-    localparam STATE_DATA = 2'b10;
-    localparam STATE_CRC = 2'b11;
+    localparam STATE_IDLE = 3'b000;
+    localparam STATE_PREAMBLE = 3'b001;
+    localparam STATE_DATA = 3'b010;
+    localparam STATE_ERROR = 3'b011;
+    localparam STATE_CRC = 3'b100;
 
-    reg[1:0] tx_state = STATE_IDLE;
+    reg[2:0] tx_state = STATE_IDLE;
 
     wire[7:0] tx_rd_data = tx_rd_fifo_data[7:0];
     wire tx_rd_tlast = tx_rd_fifo_data[8];
@@ -189,7 +193,7 @@ module SimpleMac (
             end
 
             // Idle
-            STATE_IDLE: begin
+            default: begin
                 eth_txd = 4'b0;
                 eth_txen = 1'b0;
             end
@@ -210,7 +214,7 @@ module SimpleMac (
             end
 
             case (tx_state)
-                STATE_IDLE: begin
+                default: begin
                     if (tx_wait_counter > 0) begin
                         tx_wait_counter <= tx_wait_counter - 1;
                         tx_crc_init = 1;
@@ -268,11 +272,11 @@ module SimpleMac (
     wire[RX_FIFO_ADDR_WIDTH-1:0] rx_fifo_count = rx_wr_ptr - rx_rd_ptr;
 
     reg rx_wr_en;
-    reg[8:0] rx_wr_data;
-    wire[8:0] rx_rd_fifo_data;
+    reg[9:0] rx_wr_data;
+    wire[9:0] rx_rd_fifo_data;
 
     SimpleMacFifo #(
-        .DATA_WIDTH(9),
+        .DATA_WIDTH(10),
         .ADDR_WIDTH(RX_FIFO_ADDR_WIDTH)
     ) rx_fifo (
         // Write
@@ -295,7 +299,7 @@ module SimpleMac (
 
     // RX FIFO write logic
 
-    reg[1:0] rx_state = STATE_IDLE;
+    reg[2:0] rx_state = STATE_IDLE;
 
     reg[15:0] rx_counter = 0;
     reg[31:0] rx_shift_buffer = 0;
@@ -320,7 +324,7 @@ module SimpleMac (
             rx_counter <= 0;
         end else begin
             case (rx_state)
-                STATE_IDLE: begin
+                default: begin
                     if (eth_rxdv) begin
                         rx_state <= STATE_PREAMBLE;
                         rx_shift_buffer <= 0;
@@ -351,27 +355,39 @@ module SimpleMac (
 
                             rx_wr_ptr <= rx_wr_ptr + ((rx_counter > 8) ? 1 : 0);
                             rx_wr_en <= 0;
-                            rx_wr_data <= {1'b0, rx_shift_buffer[7:0]};
+                            rx_wr_data <= {2'b00, rx_shift_buffer[7:0]};
+                        end
+
+                        if (eth_rxer | &rx_fifo_count) begin
+                            rx_state <= STATE_ERROR;
+                            rx_wr_en <= 1;
+                            rx_wr_data <= {2'b11, 8'b0};
                         end
                     end else begin
                         rx_state <= STATE_CRC;
                     end
                 end
 
+                STATE_ERROR: begin
+                    rx_wr_en <= 0;
+                    if (~eth_rxdv) begin
+                        rx_state <= STATE_IDLE;
+                        rx_wr_ptr <= rx_wr_ptr + 1;
+                    end
+                end
+
                 STATE_CRC: begin
-                    if (rx_shift_buffer == rx_crc_out) begin
-                        if (rx_wr_en) begin
-                            rx_state <= STATE_IDLE;
-                            rx_wr_en <= 0;
-                            rx_wr_data <= 0;
-                        end else begin
-                            rx_wr_en <= 1;
-                            rx_wr_data[8] <= 1;
-                        end
-                    end else begin
+                    if (rx_wr_en) begin
                         rx_state <= STATE_IDLE;
                         rx_wr_en <= 0;
                         rx_wr_data <= 0;
+                    end else begin
+                        rx_wr_en <= 1;
+                        rx_wr_data[8] <= 1;
+
+                        if (rx_shift_buffer != rx_crc_out) begin
+                            rx_wr_data[9] <= 1;
+                        end
                     end
                 end
             endcase
@@ -382,6 +398,7 @@ module SimpleMac (
 
     assign rx_tdata = rx_rd_fifo_data[7:0];
     assign rx_tlast = rx_rd_fifo_data[8];
+    assign rx_tuser = rx_rd_fifo_data[9];
 
     reg frame_active1 = 0;
     reg frame_active2 = 0;
