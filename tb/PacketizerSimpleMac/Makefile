@@ -9,7 +9,9 @@ VERILOG_SOURCES += $(PWD)/$(DUT).v
 TOPLEVEL = $(DUT)
 MODULE = test_$(DUT)
 
-EXTRA_ARGS += --trace-fst --trace-structs
+ifeq ($(SIM), verilator)
+	EXTRA_ARGS += --trace-fst --trace-structs
+endif
 
 VERILOG_SOURCES += $(PWD)/../../rtl/Packetizer.v $(PWD)/../../rtl/SimpleMac.v $(PWD)/../../rtl/lfsr.v $(PWD)/../../rtl/CRC32.v $(PWD)/../../rtl/SimpleMacFifo.v
 
