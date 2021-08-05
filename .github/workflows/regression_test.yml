@@ -6,6 +6,9 @@ jobs:
     strategy:
       matrix:
         python-version: [3.8]
+  
+    env:
+      SIM: icarus
 
     steps:
     - uses: actions/checkout@v2
