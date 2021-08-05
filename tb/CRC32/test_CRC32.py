@@ -14,7 +14,7 @@ def randbytes(n):
 async def do_crc(dut, data):
     dut.rst <= 1
     dut.data_in <= 0
-    dut.crc_en <= 0
+    dut.data_valid <= 0
 
     await RisingEdge(dut.clk)
     await RisingEdge(dut.clk)
@@ -23,13 +23,13 @@ async def do_crc(dut, data):
 
     await RisingEdge(dut.clk)
     
-    dut.crc_en <= 1
+    dut.data_valid <= 1
 
     for b in data:
         dut.data_in <= b
         await RisingEdge(dut.clk)
 
-    dut.crc_en <= 0
+    dut.data_valid <= 0
 
     await RisingEdge(dut.clk)
 

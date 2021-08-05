@@ -2,62 +2,67 @@ import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge, FallingEdge, Edge, Timer
 from cocotb.binary import BinaryValue
-from cocotb_bus.drivers.avalon import AvalonSTPkts
+from cocotbext import eth, axi
+
+from scapy.layers.l2 import Ether
+from scapy.layers.inet import UDP, IP
 
 import random
 import numpy as np
 import zlib
 
-from scapy.all import Ether, IP, UDP
+AXI_CLOCK_PERIOD_NS = 20
 
-def randbytes(n):
-    for _ in range(n):
-        yield random.getrandbits(8)
+
+class TB(object):
+    def __init__(self, dut, axi_period):
+        self.dut = dut
+        self.log = dut._log
+
+        cocotb.fork(Clock(self.dut.clk, axi_period, units="ns").start())
+        self.axi = axi.AxiStreamSink(
+            axi.AxiStreamBus.from_prefix(dut, "tx"), dut.tx_clk, dut.rst)
+
+    async def axi_recv(self) -> axi.AxiStreamFrame:
+        result = await self.axi.recv()
+        return result
+
+    async def cycle_reset(self, wait_len=3):
+        self.dut.rst.setimmediatevalue(0)
+        await RisingEdge(self.dut.tx_clk)
+        await RisingEdge(self.dut.tx_clk)
+        self.dut.rst <= 1
+
+        for i in range(wait_len):
+            await RisingEdge(self.dut.tx_clk)
+
+        self.dut.rst <= 0
+        await RisingEdge(self.dut.tx_clk)
+        await RisingEdge(self.dut.tx_clk)
+
 
 @cocotb.test()
 async def sequential_data_test(dut):
-    dut._log.info("Running test")
-
-    cocotb.fork(Clock(dut.clk, 20, units="ns").start())
-
-    dut.rst <= 1
+    tb = TB(dut, AXI_CLOCK_PERIOD_NS)
+    tb.log.info("Running test")
+    await tb.cycle_reset()
 
     dut.rd_dr <= 1
     dut.rd_data <= 0x8c63436c
 
-    dut.tx_rdy <= 1
     dut.tx_a_full <= 0
     dut.tx_a_empty <= 0
 
-    await RisingEdge(dut.tx_clk)
-    await RisingEdge(dut.tx_clk)
-    await RisingEdge(dut.tx_clk)
+    for i in range(4):
+        axi_pkt = await tb.axi_recv()
+        data = axi_pkt.tdata
+        pkt = Ether(data)
 
-    dut.rst <= 0
-
-    while int(dut.tx_sop) == 0:
-        await RisingEdge(dut.tx_clk)
-    
-    data = []
-
-    while int(dut.tx_eop) == 0:
-        if int(dut.tx_wren):
-            data.append(int(dut.tx_data))
-
-        await RisingEdge(dut.tx_clk)
-    
-    await RisingEdge(dut.tx_clk)
-    await RisingEdge(dut.tx_clk)
-
-    data = bytearray(data)
-    pkt = Ether(data)
-    # pkt.show()
-
-    assert pkt[Ether].src == "02:12:34:56:78:90"
-    assert pkt[Ether].type == 0x800, f"Ether type is {pkt[Ether].type}"
-    assert pkt[IP].src == "10.0.0.2"
-    assert pkt[IP].proto == 0x11
-    assert pkt[UDP].sport == 32179
-    assert pkt[UDP].len == 1480
+        assert pkt[Ether].src == "02:12:34:56:78:90"
+        assert pkt[Ether].type == 0x800, f"Ether type is {pkt[Ether].type}"
+        assert pkt[IP].src == "10.0.0.2"
+        assert pkt[IP].proto == 0x11
+        assert pkt[UDP].sport == 32179
+        assert pkt[UDP].len == 1480
 
     dut._log.info("Done test")

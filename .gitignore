@@ -1,5 +1,6 @@
 *.vcd
 *.fst
+*.fst.hier
 **/sim_build
 **/__pycache__
 **/results.xml

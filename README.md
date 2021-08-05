@@ -4,14 +4,14 @@ Individual modules have more detailed readme files, but in summary, this project
 
 ## Status
 
-| Module | Status | Testbench | Test Results |
-| --- | --- | --- | --- |
-| Serializer | Functional | Functional | Passing |
-| Deserializer | In progress | In progress | N/A |
-| Packetizer | In progress | In progress | N/A |
-| Depacketizer | Not started | Not started | N/A |
-| SimpleMac | Functional | Functional | Passing |
-| DataController | In progress | In progress | N/A |
+| Module            | Status        | Testbench     | Test Results  |
+| ----------------- | ------------- | ------------- | ------------- |
+| Serializer        | In progress   | In progress   | N/A           |
+| Deserializer      | In progress   | In progress   | N/A           |
+| Packetizer        | Functional    | Functional    | Passing       |
+| Depacketizer      | Not started   | Not started   | N/A           |
+| SimpleMac         | Functional    | Functional    | Passing       |
+| DataController    | In progress   | In progress   | N/A           |
 
 ## Modules
 

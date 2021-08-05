@@ -2,10 +2,7 @@ import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge, FallingEdge, Edge, Timer
 from cocotb.binary import BinaryValue
-# from cocotb_bus.drivers.avalon import AvalonSTPkts
-# from cocotbext.eth import MiiSink, MiiSource, GmiiFrame
 from cocotbext import eth, axi
-# from cocotbext.axi import AxiStreamSink, AxiStreamSource, AxiStreamBus
 
 import random
 from cocotbext.eth.gmii import GmiiFrame
