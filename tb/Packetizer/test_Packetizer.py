@@ -45,13 +45,14 @@ class TB(object):
 async def sequential_data_test(dut):
     tb = TB(dut, AXI_CLOCK_PERIOD_NS)
     tb.log.info("Running test")
-    await tb.cycle_reset()
 
     dut.rd_dr <= 1
     dut.rd_data <= 0x8c63436c
 
     dut.tx_a_full <= 0
     dut.tx_a_empty <= 0
+
+    await tb.cycle_reset()
 
     for i in range(4):
         axi_pkt = await tb.axi_recv()

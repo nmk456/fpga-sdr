@@ -19,3 +19,6 @@ include $(shell cocotb-config --makefiles)/Makefile.sim
 
 waves: sim
 	gtkwave.exe dump.fst $(DUT).gtkw
+
+all:
+	@if grep -q "<failure />" "results.xml"; then exit 1; fi
