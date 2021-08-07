@@ -3,8 +3,8 @@ module SimpleMac (
 
     // MII interface
     input eth_txclk,
-    output reg eth_txen,
-    output reg[3:0] eth_txd,
+    output reg eth_txen = 0,
+    output reg[3:0] eth_txd = 0,
     input eth_rxclk,
     input eth_rxdv,
     input eth_rxer,

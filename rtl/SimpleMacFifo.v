@@ -4,7 +4,7 @@ module SimpleMacFifo (
     input [(DATA_WIDTH-1):0] data,
     input [(ADDR_WIDTH-1):0] read_addr, write_addr,
     input we, read_clock, write_clock,
-    output reg [(DATA_WIDTH-1):0] q
+    output reg [(DATA_WIDTH-1):0] q = 0
 );
 
     parameter DATA_WIDTH=10;
