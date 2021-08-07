@@ -1,10 +1,10 @@
 [*]
 [*] GTKWave Analyzer v3.3.100 (w)1999-2019 BSI
-[*] Mon Jun 28 22:50:54 2021
+[*] Sat Aug 07 18:10:45 2021
 [*]
 [dumpfile] "\\wsl$\Ubuntu-20.04\home\nathan\fpga\sdr\tb\Packetizer\dump.fst"
-[dumpfile_mtime] "Mon Jun 28 22:45:09 2021"
-[dumpfile_size] 5745
+[dumpfile_mtime] "Sat Aug 07 21:36:40 2021"
+[dumpfile_size] 5810
 [savefile] "\\wsl$\Ubuntu-20.04\home\nathan\fpga\sdr\tb\Packetizer\Packetizer.gtkw"
 [timestart] 0
 [size] 1920 1017
@@ -21,22 +21,19 @@ rst
 @200
 -LVDS Input
 @22
-rd_data[31:0]
+lvds_tdata[31:0]
 @28
-rd_dr
-rd_en
+lvds_tready
+lvds_tvalid
 @200
--Avalon-ST Output
-@28
-tx_clk
+-AXI-S
 @22
-tx_data[7:0]
+tx_tdata[7:0]
 @28
-tx_rdy
-tx_wren
-tx_sop
-tx_eop
-tx_err
+tx_tready
+tx_tvalid
+tx_tlast
+tx_tuser
 @200
 -Internal
 @28

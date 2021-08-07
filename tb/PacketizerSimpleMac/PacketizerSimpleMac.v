@@ -1,5 +1,5 @@
 module PacketizerSimpleMac (
-    input clk_50,
+    input clk,
     input rst,
 
     input eth_txclk,
@@ -10,20 +10,19 @@ module PacketizerSimpleMac (
 
     parameter DEST_MAC = {8'hff, 8'h0, 8'hff, 8'h0, 8'hff, 8'h0};
 
-    wire tx_clk, tx_tlast, tx_tuser, tx_tready, tx_tvalid, tx_a_full, tx_a_empty;
+    wire tx_tlast, tx_tuser, tx_tready, tx_tvalid, tx_a_full, tx_a_empty;
     wire[7:0] tx_tdata;
 
     Packetizer #(
         .DEST_MAC(DEST_MAC)
     ) packetizer0 (
-        .clk(clk_50),
+        .clk(clk),
         .rst(rst),
 
-        .rd_en(),
-        .rd_data(32'h8c63436c),
-        .rd_dr(1'b1),
+        .lvds_tdata(32'h8c63436c),
+        .lvds_tready(),
+        .lvds_tvalid(1'b1),
 
-        .tx_clk(tx_clk),
         .tx_tdata(tx_tdata),
         .tx_tlast(tx_tlast),
         .tx_tuser(tx_tuser),
@@ -43,7 +42,7 @@ module PacketizerSimpleMac (
         .eth_txd(eth_txd),
         .eth_rstn(eth_rstn),
 
-        .tx_clk(tx_clk),
+        .tx_clk(clk),
         .tx_tdata(tx_tdata),
         .tx_tlast(tx_tlast),
         .tx_tuser(tx_tuser),

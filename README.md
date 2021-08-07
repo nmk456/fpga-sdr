@@ -59,6 +59,8 @@ Constructs packets using data received from Deserializer to send over Ethernet. 
 
 TODO:
 * Implement UDP and IP checksums
+* Fix LVDS input bus (use tvalid and tready signals properly)
+* Improve testbench to check payload data too
 
 ### Depacketizer
 

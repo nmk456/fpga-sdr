@@ -11,9 +11,11 @@ import zlib
 
 from scapy.all import Ether, IP, UDP
 
+
 def randbytes(n):
     for _ in range(n):
         yield random.getrandbits(8)
+
 
 async def timeout_wait(dut, event: Event):
     TIMEOUT_LEN = 5000
@@ -30,13 +32,14 @@ async def timeout_wait(dut, event: Event):
 
         assert timer > 0, "Timeout"
 
+
 @cocotb.test()
 async def sequential_data_test(dut):
     PACKETS = 16
 
     dut._log.info("Running test")
 
-    cocotb.fork(Clock(dut.clk_50, 16, units="ns").start())
+    cocotb.fork(Clock(dut.clk, 16, units="ns").start())
     cocotb.fork(Clock(dut.eth_txclk, 40, units="ns").start())
 
     mii_sink = MiiSink(dut.eth_txd, None, dut.eth_txen, dut.eth_txclk)
@@ -64,7 +67,8 @@ async def sequential_data_test(dut):
 
         assert data.check_fcs(), f"{data.get_fcs().hex()}"
         assert data.error is None
-        assert len(data.get_payload()) == 1514, f"Payload length is {len(data.get_payload())}"
+        assert len(data.get_payload()
+                   ) == 1514, f"Payload length is {len(data.get_payload())}"
 
         pkt = Ether(data.get_payload())
 
@@ -74,4 +78,5 @@ async def sequential_data_test(dut):
         assert pkt[IP].proto == 0x11
         assert pkt[UDP].sport == 32179
         assert pkt[UDP].len == 1480
-        assert bytes(pkt[UDP].payload)[8:] == bytearray([0x63, 0x8c, 0x6c, 0x43]*366), f"{len(pkt[UDP].payload[8:])}, {len(bytearray([0x63, 0x8c, 0x6c, 0x43]*366))}"
+        assert bytes(pkt[UDP].payload)[8:] == bytearray(
+            [0x63, 0x8c, 0x6c, 0x43]*366), f"{len(pkt[UDP].payload[8:])}"
