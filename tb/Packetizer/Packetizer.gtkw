@@ -1,18 +1,18 @@
 [*]
 [*] GTKWave Analyzer v3.3.100 (w)1999-2019 BSI
-[*] Sat Aug 07 18:10:45 2021
+[*] Tue Nov 30 01:38:44 2021
 [*]
 [dumpfile] "\\wsl$\Ubuntu-20.04\home\nathan\fpga\sdr\tb\Packetizer\dump.fst"
-[dumpfile_mtime] "Sat Aug 07 21:36:40 2021"
-[dumpfile_size] 5810
+[dumpfile_mtime] "Tue Nov 30 01:38:33 2021"
+[dumpfile_size] 51304
 [savefile] "\\wsl$\Ubuntu-20.04\home\nathan\fpga\sdr\tb\Packetizer\Packetizer.gtkw"
-[timestart] 0
+[timestart] 908
 [size] 1920 1017
 [pos] -9 -9
-*-6.000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-7.000000 1295 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] .
 [sst_width] 211
-[signals_width] 190
+[signals_width] 237
 [sst_expanded] 1
 [sst_vpaned_height] 301
 @28
@@ -27,8 +27,19 @@ lvds_tready
 lvds_tvalid
 @200
 -AXI-S
-@22
+@c00022
 tx_tdata[7:0]
+@28
+(0)tx_tdata[7:0]
+(1)tx_tdata[7:0]
+(2)tx_tdata[7:0]
+(3)tx_tdata[7:0]
+(4)tx_tdata[7:0]
+(5)tx_tdata[7:0]
+(6)tx_tdata[7:0]
+(7)tx_tdata[7:0]
+@1401200
+-group_end
 @28
 tx_tready
 tx_tvalid
@@ -36,13 +47,40 @@ tx_tlast
 tx_tuser
 @200
 -Internal
-@28
-Packetizer.IQready
 @22
-Packetizer.wait_counter[7:0]
 Packetizer.packet_counter[63:0]
+Packetizer.iq_buffer_p1[31:0]
+Packetizer.iq_buffer[31:0]
 Packetizer.next_I[15:0]
 Packetizer.next_Q[15:0]
+@420
+Packetizer.next_I[15:0]
+Packetizer.next_Q[15:0]
+@c00022
 Packetizer.tx_word[15:0]
+@28
+(0)Packetizer.tx_word[15:0]
+(1)Packetizer.tx_word[15:0]
+(2)Packetizer.tx_word[15:0]
+(3)Packetizer.tx_word[15:0]
+(4)Packetizer.tx_word[15:0]
+(5)Packetizer.tx_word[15:0]
+(6)Packetizer.tx_word[15:0]
+(7)Packetizer.tx_word[15:0]
+(8)Packetizer.tx_word[15:0]
+(9)Packetizer.tx_word[15:0]
+(10)Packetizer.tx_word[15:0]
+(11)Packetizer.tx_word[15:0]
+(12)Packetizer.tx_word[15:0]
+(13)Packetizer.tx_word[15:0]
+(14)Packetizer.tx_word[15:0]
+(15)Packetizer.tx_word[15:0]
+@1401200
+-group_end
+@28
+Packetizer.new_sample
+Packetizer.new_sample_last
+@29
+Packetizer.waited
 [pattern_trace] 1
 [pattern_trace] 0

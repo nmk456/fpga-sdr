@@ -1,0 +1,64 @@
+{
+    "signal": [
+        {
+            "name": "clk",
+            "wave": "P..................."
+        },
+        [
+            "From LVDS",
+            {
+                "name": "lvds_tdata",
+                "wave": "55|..5...5...x......",
+                "data": ["IQ0", "IQ1", "IQ2", "IQ3"]
+            }, {
+                "name": "lvds_tready",
+                "wave": "10|.10..10..10......"
+            }, {
+                "name": "lvds_tvalid",
+                "wave": "1............0......"
+            }
+        ],
+        {},
+        [
+            "To MAC",
+            {
+                "name": "tx_tdata",
+                "wave": "x.|5555555555555555x",
+                "data": ["I0L", "I0H", "Q0L", "Q0H", "I1L", "I1H", "Q1L", "Q1H", "I2L", "I2H", "Q2L", "Q2H", "I3L", "I3H", "Q3L", "Q3H"]
+            }, {
+                "name": "tx_tready",
+                "wave": "1.|................."
+            }, {
+                "name": "tx_tvalid",
+                "wave": "0.|1...............0"
+            }, {
+                "name": "tx_tlast",
+                "wave": "0.................10"
+            }
+        ],
+        {},
+        [
+            "Internal",
+            {
+                "name": "tx_word[1:0]",
+                "wave": "x.|3333333333333333x",
+                "data": ["10", "11", "00", "01", "10", "11", "00", "01", "10", "11", "00", "01", "10", "11", "00", "01"]
+            },
+            {
+                "name": "iq_buffer",
+                "wave": "x.|5...5...5...5....",
+                "data": ["IQ0", "IQ1", "IQ2", "IQ3"]
+            }, {
+                "name": "iq_buffer_p1",
+                "wave": "x5|..5...5...5...",
+                "data": ["IQ0", "IQ1", "IQ2", "IQ3"]
+            }, {
+                "name": "new_sample",
+                "wave": "01.0.1.0.1.0.1.0."
+            }
+        ]
+    ],
+    "head": {
+        "text": "Packetizer Timing, Full Throughput"
+    }
+}
