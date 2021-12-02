@@ -9,9 +9,9 @@ module SimpleMac (
     input eth_rxdv,
     input eth_rxer,
     input[3:0] eth_rxd,
-    input eth_col,
-    input eth_crs,
-    output eth_pcf,
+    // input eth_col,
+    // input eth_crs,
+    // output eth_pcf,
     output eth_rstn,
 
     // Transmit interface
@@ -217,10 +217,10 @@ module SimpleMac (
                 default: begin
                     if (tx_wait_counter > 0) begin
                         tx_wait_counter <= tx_wait_counter - 1;
-                        tx_crc_init = 1;
+                        tx_crc_init <= 1;
                     end else if (tx_packets_ready > 0) begin
                         tx_counter <= 0;
-                        tx_crc_init = 0;
+                        tx_crc_init <= 0;
 
                         tx_state <= STATE_PREAMBLE;
                         tx_rd_ptr <= tx_rd_ptr + 1;

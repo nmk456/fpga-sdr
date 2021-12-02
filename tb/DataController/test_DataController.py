@@ -2,8 +2,7 @@ import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge, FallingEdge, Edge, ClockCycles, Event
 from cocotb.binary import BinaryValue
-from cocotb_bus.drivers.avalon import AvalonSTPkts
-from cocotbext.eth import MiiSink
+from cocotbext import eth, axi
 
 import random
 import numpy as np
@@ -42,7 +41,7 @@ async def sequential_data_test(dut):
     cocotb.fork(Clock(dut.clk, 16, units="ns").start())
     cocotb.fork(Clock(dut.eth_txclk, 40, units="ns").start())
 
-    mii_sink = MiiSink(dut.eth_txd, None, dut.eth_txen, dut.eth_txclk)
+    mii_sink = eth.MiiSink(dut.eth_txd, None, dut.eth_txen, dut.eth_txclk)
 
     timeout = Event()
     cocotb.fork(timeout_wait(dut, timeout))
@@ -78,5 +77,6 @@ async def sequential_data_test(dut):
         assert pkt[IP].proto == 0x11
         assert pkt[UDP].sport == 32179
         assert pkt[UDP].len == 1480
+
         assert bytes(pkt[UDP].payload)[8:] == bytearray(
-            [0x63, 0x8c, 0x6c, 0x43]*366), f"{len(pkt[UDP].payload[8:])}"
+            [0x63, 0x8c, 0x6c, 0x43]*366), f"{bytes(pkt[UDP].payload)[8:].hex()}"

@@ -1,4 +1,6 @@
-module PacketizerSimpleMac (
+`timescale 1ns / 1ns
+
+module DataController (
     input clk,
     input rst,
 
@@ -13,6 +15,7 @@ module PacketizerSimpleMac (
     wire tx_tlast, tx_tuser, tx_tready, tx_tvalid, tx_a_full, tx_a_empty;
     wire[7:0] tx_tdata;
 
+    /* verilator lint_off PINMISSING */
     Packetizer #(
         .DEST_MAC(DEST_MAC)
     ) packetizer0 (
@@ -27,13 +30,12 @@ module PacketizerSimpleMac (
         .tx_tlast(tx_tlast),
         .tx_tuser(tx_tuser),
         .tx_tready(tx_tready),
-        .tx_tvalid(tx_tvalid),
+        .tx_tvalid(tx_tvalid)//,
 
-        .tx_a_full(tx_a_full),
-        .tx_a_empty(tx_a_empty)
+        // .tx_a_full(tx_a_full),
+        // .tx_a_empty(tx_a_empty)
     );
 
-    /* verilator lint_off PINMISSING */
     SimpleMac mac0 (
         .rst(rst),
 

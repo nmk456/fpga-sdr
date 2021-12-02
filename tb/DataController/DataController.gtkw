@@ -1,0 +1,38 @@
+[*]
+[*] GTKWave Analyzer v3.3.100 (w)1999-2019 BSI
+[*] Tue Nov 30 15:07:30 2021
+[*]
+[dumpfile] "\\wsl$\Ubuntu-20.04\home\nathan\fpga\sdr\tb\DataController\dump.fst"
+[dumpfile_mtime] "Tue Nov 30 15:04:30 2021"
+[dumpfile_size] 96095
+[savefile] "\\wsl$\Ubuntu-20.04\home\nathan\fpga\sdr\tb\DataController\DataController.gtkw"
+[timestart] 34160
+[size] 1920 1017
+[pos] -165 -165
+*-7.000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] .
+[sst_width] 211
+[signals_width] 134
+[sst_expanded] 1
+[sst_vpaned_height] 301
+@28
+clk
+eth_rstn
+eth_txclk
+@22
+eth_txd[3:0]
+@28
+eth_txen
+rst
+@200
+-AXIS
+@22
+DataController.tx_tdata[7:0]
+@28
+DataController.tx_tready
+DataController.tx_tvalid
+DataController.tx_tlast
+@29
+DataController.tx_tuser
+[pattern_trace] 1
+[pattern_trace] 0
