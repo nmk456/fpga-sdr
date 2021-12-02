@@ -36,5 +36,11 @@ jobs:
     - name: Run SimpleMac test
       run: make -C tb/SimpleMac
     
-    - name: Run PacketizerSimpleMac test
-      run: make -C tb/PacketizerSimpleMac
+    - name: Run DataController test
+      run: make -C tb/DataController
+
+    - name: Run Serializer test
+      run: make -C tb/Serializer
+
+    - name: Rune Deserializer test
+      run: make -C tb/Deserializer
