@@ -1,3 +1,3 @@
-DUT = Serializer
+DUT = Deserializer
 
 include ../common.mk
